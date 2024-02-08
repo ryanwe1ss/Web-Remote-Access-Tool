@@ -1,0 +1,8 @@
+[package]
+name = "client-rat"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hostname = "0.3.1"
+whoami = "1.4.1"

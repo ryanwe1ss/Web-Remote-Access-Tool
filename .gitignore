@@ -1,1 +1,4 @@
 server/app/node_modules
+server/__pycache__
+
+client/target
