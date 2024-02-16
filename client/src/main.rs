@@ -30,9 +30,9 @@ fn main() {
                                 stream.write_all("ping".as_bytes()).unwrap();
                             }
                             "append" => {
+                                stream.write_all("append".as_bytes()).unwrap();
                                 main();
                             }
-
                             _ => {
                                 continue;
                             }

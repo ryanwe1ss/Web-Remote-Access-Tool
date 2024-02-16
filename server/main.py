@@ -26,9 +26,4 @@ if __name__ == '__main__':
     t1.daemon = True
     t1.start()
 
-    t2 = threading.Thread(target=run_flask_api)
-    t2.daemon = True
-    t2.start()
-
-    t3 = threading.Thread(target=tcp_server.ManageConnections)
-    t3.start()
+    run_flask_api()

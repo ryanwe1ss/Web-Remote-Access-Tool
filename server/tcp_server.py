@@ -2,6 +2,7 @@
 import threading
 import socket
 import json
+import time
 import os
 
 # third-party libraries
@@ -15,99 +16,92 @@ table.field_names = ["ID", "Computer", "IP Address", "Username"]
 bufferSize = 1024
 clients = []
 
-# API functions
-def OutputPipe(data):
-   print(data)
-
 # utility functions
-def send(client, data):
-   if (isinstance(data, bytes)):
-      client.send(data)
-   else:
-      client.send(data.encode())
-
 def receive(client, decode=True):
-    data = client.recv(bufferSize)
-    return data.decode() if decode else data
+   data = client.recv(bufferSize)
+   return data.decode() if decode else data
 
-def adjustTable():
-   table.clear_rows()
+def send_and_receive(client, data, decode=True):
+   try:
+      if (isinstance(data, bytes)): client.send(data)
+      else: client.send(data.encode())
+      return receive(client, decode)
 
-   for client in clients:
-      table.add_row([
-         clients.index(client),
-         client['computer_name'],
-         client['socket'].getpeername()[0],
-         client['username']
-      ])
+   except socket.error:
+      return False
+
+def isConnected(client):
+   try:
+      response = send_and_receive(client, 'ping')
+      if ('ping' in response):
+         return True
+      else:
+         return False
+
+   except socket.error:
+      return False
 
 # server functions
-def ManageConnections(command=None):
-   while (True):
-      try:
-         if not command:
-            command = input('\n-> ').lower().strip()
+def ManageConnections(command, connection=None):
+   try:
+      if (command == 'clients'):
+         deadClients = []
 
-         if (command == 'clients'):
-            deadClients = []
-
-            for client in clients:
-              try:
-                 send(client['socket'], 'ping')
-                 if ('ping' in receive(client['socket'])):
-                    continue
-                 
-              except socket.error:
-                  deadClients.append(client)
-
-            for client in deadClients:
-                clients.remove(client)
-
-            if (len(clients) < 1):
-                OutputPipe('<Connections Appear Here>')
-            else:
-               adjustTable()
-               OutputPipe(table)
-
-         elif ('connect' in command):
-            client = clients[int(command.split(' ')[1])]
+         for client in clients:
             try:
-               send(client['socket'], 'ping')
-               if ('ping' in receive(client['socket'])):
-                  ControlClient(client)
-
+               response = send_and_receive(client['socket'], 'ping')
+               if ('ping' in response):
+                  continue
+               
             except socket.error:
+               deadClients.append(client)
+
+         for client in deadClients:
+            clients.remove(client)
+
+         return [] if len(clients) < 1 else clients
+
+      elif (command == 'connect' and connection is not None):
+         client = None
+
+         try:
+            client = clients[int(connection)]
+            response = send_and_receive(client['socket'], 'ping')
+
+            if ('ping' in response):
+               return True
+            else:
                clients.remove(client)
-               OutputPipe('Unable to Connect ~ Client Removed')
 
-      except (ValueError, IndexError):
-         OutputPipe('Invalid Connection ID, try again')
+         except (socket.error, ValueError, IndexError):
+            return False
 
-      except KeyboardInterrupt:
-            break
+   except (ValueError, IndexError):
+      return json.dumps({'status': 'error', 'message': 'Invalid Connection ID, try again'})
 
-      finally:
-         command = None
+   finally:
+      command = None
 
-def ControlClient(client):
-  while (True):
-    try:
-      command = input(f'({address[0]})> ')
-      if not command:
-         continue
+def ControlClient(command, connection):
+   client = clients[connection]['socket']
 
-      elif (command == '-ac'):
-         OutputPipe(f'Appended Connection ~ [{clientInfo["computer_name"]}]\n')
-         send(client, 'append')
-         break
+   if (isConnected(client)):
+      if (command == 'append'):
+         response = send_and_receive(client, 'append')
 
-    except KeyboardInterrupt:
-          print('\n[Keyboard Interrupted ~ Connection Appended]')
-          break
+         if ('append' in response):
+            clients.remove(clients[connection])
+            return True
 
-    except Exception as e:
-        print('Lost Connection')
-        break
+   return None
+
+def ClientInformation(connection):
+   return {
+      'connection_id': connection,
+      'computer_name': clients[connection]['computer_name'],
+      'username': clients[connection]['username'],
+      'ip_address': clients[connection]['socket'].getpeername()[0],
+   }
 
 def RemoteConnect(server, port):
    objSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -121,9 +115,9 @@ def RemoteConnect(server, port):
          data = json.loads(receive(client))
 
          clients.append({
-         'socket': client,
-         'computer_name': data['computer_name'],
-         'username': data['username'],
+            'socket': client,
+            'computer_name': data['computer_name'],
+            'username': data['username'],
          })
 
       except socket.error:
@@ -131,4 +125,6 @@ def RemoteConnect(server, port):
          del(objSocket)
          break
 
-webapi.api.clients = clients
+webapi.api.ManageConnections = ManageConnections
+webapi.api.ControlClient = ControlClient
+webapi.api.ClientInformation = ClientInformation
