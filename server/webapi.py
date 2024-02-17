@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import logging
 import sys
 import os
@@ -7,7 +8,9 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 cli = sys.modules['flask.cli']
 cli.show_server_banner = lambda *x: None
+
 api = Flask(__name__)
+CORS(api)
 
 connection = None
 connectionRequiredRoutes = [
