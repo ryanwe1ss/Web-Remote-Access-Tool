@@ -16,13 +16,14 @@ connection = None
 connectionRequiredRoutes = [
     '/api/client',
     '/api/append-connection',
+    '/api/send-message',
 ]
 
 @api.before_request
 def before_request():
-  if (request.path in connectionRequiredRoutes):
-    if (connection is None):
-      return jsonify({'status': 502, 'message': 'Not connected to a client.'})
+    if (request.path in connectionRequiredRoutes):
+        if (connection is None):
+            return jsonify({'connected': False, 'message': 'Not connected to a client.'})
 
 # GET REQUESTS
 @api.get('/api/clients')
@@ -32,46 +33,59 @@ def clients():
     
     for client in clients:
         clientInfo.append({
-            'id': clients.index(client),
             'ip': client['socket'].getpeername()[0],
             'computer': client['computer_name'],
             'username': client['username'],
+            'connection_id': client['connection_id'],
         })
 
     return jsonify(clientInfo)
 
 @api.get('/api/client')
 def getClient():
-    return api.ClientInformation(connection)
+    global connection
+
+    info = api.ClientInformation(connection)
+    if (info is None):
+        connection = None
+        return jsonify({'connected': False, 'message': 'Not connected to a client.'})
+
+    return {
+        'connected': connection is not None,
+        'client': api.ClientInformation(connection),
+    }
 
 # POST REQUESTS
 @api.post('/api/connect-client/<id>')
 def ConnectClient(id):
     global connection
 
-    if connection is None:
-        if (api.ManageConnections('connect', id)):
-            connection = int(id)
-            return jsonify({'status': 200, 'message': 'Connected to Client'})
-        else:
-            return jsonify({'status': 502, 'message': 'Unable to Connect'})
+    if (api.ManageConnections('connect', id)):
+        connection = int(id)
+        return jsonify({'connected': True, 'message': 'Connected to Client'})
     else:
-        return jsonify({'status': 502, 'message': 'Already connected to a client'})
+        return jsonify({'connected': False, 'message': 'Unable to Connect'})
 
-# PUT REQUESTS
-@api.put('/api/append-connection')
+@api.post('/api/append-connection')
 def AppendConnection():
     global connection
 
     if (api.ControlClient('append', connection)):
         message = 'Connection Appended'
-        status = 200
+        connected = True
     else:
         message = 'Unable to Append Connection, disconnected from client'
-        status = 502
+        connected = False
 
     connection = None
-    return jsonify({'status': status, 'message': message})
+    return jsonify({'connected': connected, 'message': message})
 
-# DELETE REQUESTS
-# ...
+@api.post('/api/send-message')
+def SendMessage():
+    global connection
+
+    message = request.json['message']
+    if (api.SendMessage(connection, message)):
+        return jsonify({'sent': True, 'message': 'Message Sent'})
+    else:
+        return jsonify({'sent': False, 'message': 'Unable to Send Message'})

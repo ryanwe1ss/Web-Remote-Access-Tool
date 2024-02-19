@@ -4,20 +4,41 @@ function Clients(args)
 {
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
+
+  const clientList = useRef(null);
   const noClients = useRef(null);
 
   useEffect(() => {
     fetch(`http://${args.apiHost}:${args.apiPort}/api/clients`)
       .then(response => response.json())
       .then(clients => {
-        noClients.current.style.display = (clients.length == 0) ? 'block' : 'none';
+        noClients.current.textContent = (clients.length == 0) ? 'Listening for Clients' : null;
         setClients(clients);
+
+        if (clients.length > 0) {
+          fetch(`http://${args.apiHost}:${args.apiPort}/api/client`)
+            .then(response => response.json())
+            .then(response => {
+              if (response.connected) {
+                setSelectedClient(response.client.connection_id);
+                args.setClient(response.client.connection_id);
+              }
+            }
+          );
+        
+        } else {
+          fetch(`http://${args.apiHost}:${args.apiPort}/api/append-connection`, {
+            method: 'POST',
+          });
+        }
       }
     );
 
   }, []);
 
   async function ClientConnect(client) {
+    clientList.current.style.pointerEvents = 'none';
+
     await fetch(`http://${args.apiHost}:${args.apiPort}/api/connect-client/${client}`, {
       method: 'POST'
     });
@@ -27,18 +48,19 @@ function Clients(args)
 
     args.setClient(data);
     setSelectedClient(client);
+    clientList.current.style.pointerEvents = 'all';
   }
   
   return (
     <div className='client-container'>
       <header>Clients</header>
 
-      <div className='client-list'>
+      <div className='client-list' ref={clientList}>
         {clients && clients.map((client, index) => (
           <div
             key={index}
-            onClick={() => ClientConnect(index)}
-            className={`client ${selectedClient == index ? 'selected' : ''}`}
+            onClick={() => ClientConnect(client.connection_id)}
+            className={`client ${selectedClient == client.connection_id ? 'selected' : ''}`}
             >
             <i className='bi bi-router status'></i>
 
@@ -48,7 +70,7 @@ function Clients(args)
           </div>
         ))}
 
-        <div className='no-clients' ref={noClients}>Listening for Clients</div>
+        <div className='no-clients' ref={noClients}></div>
       </div>
     </div>
   );

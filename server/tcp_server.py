@@ -1,8 +1,8 @@
 # standard libraries
 import threading
 import socket
+import random
 import json
-import time
 import os
 
 # third-party libraries
@@ -21,22 +21,32 @@ def receive(client, decode=True):
    data = client.recv(bufferSize)
    return data.decode() if decode else data
 
-def send_and_receive(client, data, decode=True):
+def send_and_receive(connection, data, decode=True):
    try:
-      if (isinstance(data, bytes)): client.send(data)
-      else: client.send(data.encode())
+      client = None
+
+      for c in clients:
+         if (c['connection_id'] == int(connection)):
+            client = c['socket']
+            break
+
+      if (isinstance(data, bytes)):
+         client.send(data)
+      else:
+         client.send(data.encode())
+         
       return receive(client, decode)
 
-   except socket.error:
-      return False
+   except (IndexError, AttributeError, socket.error):
+      return list()
 
-def isConnected(client):
+def isConnected(connection):
    try:
-      response = send_and_receive(client, 'ping')
+      response = send_and_receive(connection, 'ping')
       if ('ping' in response):
          return True
       else:
-         return False
+         raise socket.error
 
    except socket.error:
       return False
@@ -49,9 +59,9 @@ def ManageConnections(command, connection=None):
 
          for client in clients:
             try:
-               response = send_and_receive(client['socket'], 'ping')
-               if ('ping' in response):
-                  continue
+               response = send_and_receive(client['connection_id'], 'ping')
+               if not ('ping' in response):
+                  raise socket.error
                
             except socket.error:
                deadClients.append(client)
@@ -62,46 +72,59 @@ def ManageConnections(command, connection=None):
          return [] if len(clients) < 1 else clients
 
       elif (command == 'connect' and connection is not None):
-         client = None
-
          try:
-            client = clients[int(connection)]
-            response = send_and_receive(client['socket'], 'ping')
-
+            response = send_and_receive(connection, 'ping')
             if ('ping' in response):
                return True
             else:
-               clients.remove(client)
+               for client in clients:
+                  if (client['connection_id'] == connection):
+                     clients.remove(client)
+                     break
 
          except (socket.error, ValueError, IndexError):
             return False
 
    except (ValueError, IndexError):
-      return json.dumps({'status': 'error', 'message': 'Invalid Connection ID, try again'})
+      return False
 
    finally:
       command = None
 
 def ControlClient(command, connection):
-   client = clients[connection]['socket']
-
-   if (isConnected(client)):
+   if (isConnected(connection)):
       if (command == 'append'):
-         response = send_and_receive(client, 'append')
+         response = send_and_receive(connection, 'append')
 
          if ('append' in response):
-            clients.remove(clients[connection])
-            return True
+            for client in clients:
+               if (client['connection_id'] == connection):
+                  clients.remove(client)
+                  return True
 
    return None
 
 def ClientInformation(connection):
-   return {
-      'connection_id': connection,
-      'computer_name': clients[connection]['computer_name'],
-      'username': clients[connection]['username'],
-      'ip_address': clients[connection]['socket'].getpeername()[0],
-   }
+   response = send_and_receive(connection, 'ping')
+   if not ('ping' in response):
+      return None
+
+   for client in clients:
+      if (client['connection_id'] == connection):
+         return {
+            'connection_id': client['connection_id'],
+            'computer_name': client['computer_name'],
+            'username': client['username'],
+            'ip_address': client['socket'].getpeername()[0],
+         }
+
+   return None
+
+def SendMessage(connection, message):
+   response = send_and_receive(connection, 'message')
+   if ('message' in response):
+      status = send_and_receive(connection, message)
+      return status
 
 def RemoteConnect(server, port):
    objSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -113,11 +136,13 @@ def RemoteConnect(server, port):
       try:
          client, _ = objSocket.accept()
          data = json.loads(receive(client))
+         connectionId = random.randint(100000000, 999999999)
 
          clients.append({
             'socket': client,
             'computer_name': data['computer_name'],
             'username': data['username'],
+            'connection_id': connectionId,
          })
 
       except socket.error:
@@ -128,3 +153,4 @@ def RemoteConnect(server, port):
 webapi.api.ManageConnections = ManageConnections
 webapi.api.ControlClient = ControlClient
 webapi.api.ClientInformation = ClientInformation
+webapi.api.SendMessage = SendMessage

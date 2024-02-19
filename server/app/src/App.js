@@ -14,7 +14,7 @@ function App()
   return (
     <div className='container'>
       <Clients apiHost={server} apiPort={port} setClient={setClient} />
-      <Panel client={client} />
+      <Panel apiHost={server} apiPort={port} client={client} />
     </div>
   );
 }
