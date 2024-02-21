@@ -15,11 +15,13 @@ function Visual() {
   function CaptureScreenshot() {
     screenshot.current.style.width = '100%';
     screenshot.current.style.height = '100%';
+    screenshot.current.style.padding = '0';
   }
 
   function CaptureWebcam() {
     webcam.current.style.width = '100%';
     webcam.current.style.height = '100%';
+    webcam.current.style.padding = '0';
   }
 
   return (

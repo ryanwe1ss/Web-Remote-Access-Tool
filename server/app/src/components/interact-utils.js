@@ -24,7 +24,7 @@ function InteractUtilities(args)
     <>
       <div className='message-box'>
         <div className='elements'>
-          <textarea placeholder='Type a message...' ref={message} />
+          <textarea placeholder='Type a message...' ref={message} maxLength={1023} />
           <input type='button' value='Send Message' onClick={SendMessage}/>
         </div>
       </div>

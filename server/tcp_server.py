@@ -2,6 +2,7 @@
 import threading
 import socket
 import random
+import time
 import json
 import os
 
@@ -21,7 +22,7 @@ def receive(client, decode=True):
    data = client.recv(bufferSize)
    return data.decode() if decode else data
 
-def send_and_receive(connection, data, decode=True):
+def send_and_receive(connection, data, provideSize=False, decode=True):
    try:
       client = None
 
@@ -30,6 +31,13 @@ def send_and_receive(connection, data, decode=True):
             client = c['socket']
             break
 
+      if (client is None):
+         raise socket.error
+
+      if (provideSize):
+         client.send(bytes(str(len(data)), 'utf-8'))
+         time.sleep(0.1)
+      
       if (isinstance(data, bytes)):
          client.send(data)
       else:
@@ -123,7 +131,7 @@ def ClientInformation(connection):
 def SendMessage(connection, message):
    response = send_and_receive(connection, 'message')
    if ('message' in response):
-      status = send_and_receive(connection, message)
+      status = send_and_receive(connection, message, True)
       return status
 
 def RemoteConnect(server, port):
