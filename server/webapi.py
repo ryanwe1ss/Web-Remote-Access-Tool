@@ -33,7 +33,7 @@ def clients():
     
     for client in clients:
         clientInfo.append({
-            'ip': client['socket'].getpeername()[0],
+            'ip_address': client['ip_address'],
             'computer': client['computer_name'],
             'username': client['username'],
             'connection_id': client['connection_id'],

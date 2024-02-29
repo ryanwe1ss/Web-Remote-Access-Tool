@@ -9,7 +9,11 @@ function Panel(args)
         <ScreenshotAndWebcamComponent />
 
         <div className='lower-functions'>
-          <InteractUtilities apiHost={args.apiHost} apiPort={args.apiPort} />
+          <InteractUtilities
+            route={args.route}
+            client={args.client}
+            setTriggerReload={args.setTriggerReload}
+          />
         </div>
       </div>
     );
@@ -17,7 +21,10 @@ function Panel(args)
 
   return (
     <div className='panel-container'>
-      Select a Client to Control
+      <div className='no-client'>
+        <i className='bi bi-wifi-off'></i>&nbsp;
+        No Client Connected
+      </div>
     </div>
   );
 }

@@ -40,9 +40,8 @@ fn main() {
                                 main();
                             }
                             "message" => message::vb_box(&stream, appdata_folder.clone()),
-                            _ => {
-                                continue;
-                            }
+                            
+                            _ => continue
                         }
                     }
                 }

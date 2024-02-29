@@ -20,6 +20,11 @@ body {
       text-align: center;
       color: #FFF;
       padding: 5px;
+
+      .hamburger {
+        float: right;
+        cursor: pointer;
+      }
     }
   
     .client-list {
@@ -65,6 +70,14 @@ body {
     margin-left: 10px;
     width: 100%;
 
+    .no-client {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      font-size: 20px;
+    }
+
     .visual-components {
       display: flex;
       flex-direction: row;
@@ -102,13 +115,13 @@ body {
           padding: 8px;
           width: 100%;
 
-          background-color: #425E7A;
+          background-color: #1b3e63;
           border-radius: 5px;
           color: white;
           border: none;
 
           &:hover {
-            background-color: #2E4458;
+            background-color: #0f2a45;
             cursor: pointer;
           }
         }
@@ -118,7 +131,7 @@ body {
     .lower-functions {
       display: flex;
 
-      padding: 8px;
+      padding-left: 8px;
       height: 100%;
 
       .message-box {
@@ -127,17 +140,26 @@ body {
         width: 50%;
 
         .elements {
+          white-space: nowrap;
+          overflow: auto;
+          padding: 2px;
 
-          input {
-            background-color: #425E7A;
+          hr {
+            margin: 10px 0px;
+            width: 98%;
+          }
+
+          button {
+            background-color: #1b3e63;
             border: none;
             border-radius: 3px;
             color: #FFF;
             cursor: pointer;
             padding: 5px;
+            height: 28px;
 
             &:hover {
-              background-color: #2E4458;
+              background-color: #0f2a45;
             }
           }
 
@@ -149,6 +171,25 @@ body {
 
             &:focus {
               outline: none;
+            }
+          }
+
+          .controls {
+            display: flex;
+
+            .message-sent {
+              display: none;
+              margin-left: 5px;
+              margin-top: 5px;
+
+              .check {
+                font-size: 20px;
+                color: green;
+              }
+
+              span {
+                font-size: 18px;
+              }
             }
           }
         }
