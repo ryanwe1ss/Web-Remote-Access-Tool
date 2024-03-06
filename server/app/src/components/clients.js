@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import LoadingBar from './../visuals/LoadingBar/loading-bar';
 
 function Clients(args)
 {
@@ -7,20 +8,17 @@ function Clients(args)
   const noClients = useRef(null);
 
   useEffect(() => {
-    const socket = new WebSocket('ws://192.168.2.220:5007');
+    const socket = new WebSocket(args.webSocketRoute);
 
     socket.onmessage = (event) => {
       const clients = JSON.parse(event.data.replace(/'/g, '"'));
       noClients.current.textContent = (clients.length == 0) ? 'Listening for Clients' : null;
       setClients(clients);
-
-      console.log(clients);
-      const uniqueData = Object.values(clients.reduce((acc, item) => (acc[`${item.ip}-${item.username}-${item.computer}`] = item, acc), {}));
-      console.log(uniqueData);
-
-      // prevent duplicate connections (add date check too maybe?)
     };
 
+  }, []);
+
+  useEffect(() => {
     args.setClient(null);
     args.setSelectedClient(null);
 
@@ -53,6 +51,7 @@ function Clients(args)
 
   async function ClientConnect(client) {
     clientList.current.style.pointerEvents = 'none';
+    document.getElementById(client).style.display = 'block';
 
     await fetch(`${args.route}/api/connect-client/${client}`, {
       method: 'POST'
@@ -63,7 +62,9 @@ function Clients(args)
 
     args.setClient(data);
     args.setSelectedClient(client);
+
     clientList.current.style.pointerEvents = 'all';
+    document.getElementById(client).style.display = 'none';
   }
   
   return (
@@ -81,10 +82,13 @@ function Clients(args)
             className={`client ${args.selectedClient == client.connection_id ? 'selected' : ''}`}
             >
             <i className='bi bi-router status'></i>
-
             <div className='username'>{client.username}</div>
             <div className='computer'>{client.computer}</div>
             <div className='ip'>{client.ip_address}</div>
+
+            <div className='loader' id={client.connection_id}>
+              <LoadingBar size={'tiny'}/>
+            </div>
           </div>
         ))}
 

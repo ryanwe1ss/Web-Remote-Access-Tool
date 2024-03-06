@@ -17,6 +17,7 @@ connectionRequiredRoutes = [
     '/api/client',
     '/api/append-connection',
     '/api/send-message',
+    '/api/lock-computer',
 ]
 
 @api.before_request
@@ -89,3 +90,30 @@ def SendMessage():
         return jsonify({'sent': True, 'message': 'Message Sent'})
     else:
         return jsonify({'sent': False, 'message': 'Unable to Send Message'})
+    
+@api.post('/api/lock-computer')
+def LockComputer():
+    global connection
+
+    if (api.SystemAction(connection, 'lock')):
+        return jsonify({'locked': True, 'message': 'Computer Locked'})
+    else:
+        return jsonify({'locked': False, 'message': 'Unable to Lock Computer'})
+    
+@api.post('/api/restart-computer')
+def RestartComputer():
+    global connection
+
+    if (api.SystemAction(connection, 'restart')):
+        return jsonify({'restarted': True, 'message': 'Computer Restarted'})
+    else:
+        return jsonify({'restarted': False, 'message': 'Unable to Restart Computer'})
+
+@api.post('/api/shutdown-computer')
+def ShutdownComputer():
+    global connection
+
+    if (api.SystemAction(connection, 'shutdown')):
+        return jsonify({'shutdown': True, 'message': 'Computer Shutdown'})
+    else:
+        return jsonify({'shutdown': False, 'message': 'Unable to Shutdown Computer'})

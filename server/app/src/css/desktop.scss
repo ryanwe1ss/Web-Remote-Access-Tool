@@ -38,8 +38,16 @@ body {
         cursor: pointer;
   
         .status {
-          float: right;
           color: rgb(34, 194, 34);
+          font-size: 20px;
+          float: right;
+        }
+
+        .loader {
+          margin-left: 20px;
+          margin-top: -20px;
+          display: none;
+          float: right;
         }
       }
   
@@ -69,6 +77,7 @@ body {
   
     margin-left: 10px;
     width: 100%;
+    min-width: 800px;
 
     .no-client {
       display: flex;
@@ -130,11 +139,10 @@ body {
 
     .lower-functions {
       display: flex;
-
       padding-left: 8px;
       height: 100%;
 
-      .message-box {
+      .left-panel {
         border-right: 2px solid #000;
         border-radius: 3px;
         width: 50%;
@@ -151,6 +159,8 @@ body {
 
           button {
             background-color: #1b3e63;
+            margin-right: 5px;
+            font-size: 14px;
             border: none;
             border-radius: 3px;
             color: #FFF;
@@ -160,6 +170,59 @@ body {
 
             &:hover {
               background-color: #0f2a45;
+            }
+          }
+
+          .append-btn {
+            margin-bottom: 3px;
+            width: 99%;
+          }
+
+          .system-buttons {
+            display: flex;
+            justify-content: space-around;
+            padding: 5px 0px;
+
+            button {
+              font-weight: bold;
+              color: black;
+              width: 100%;
+
+              label {
+                text-align: center;
+                font-size: 15px;
+                margin-right: 7px;
+                cursor: pointer;
+              }
+
+              i {
+                font-size: 16px;
+                float: left;
+              }
+            }
+
+            .shutdown {
+              background-color: #c9302c;
+
+              &:hover {
+                background-color: #a82925;
+              }
+            }
+
+            .restart {
+              background-color: #2c8f3d;
+
+              &:hover {
+                background-color: #2a7d36;
+              }
+            }
+
+            .lock {
+              background-color: #94b406;
+
+              &:hover {
+                background-color: #7f9c05;
+              }
             }
           }
 

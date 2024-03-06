@@ -135,7 +135,15 @@ def SendMessage(connection, message):
    if ('message' in response):
       status = send_and_receive(connection, message, True)
       return status
+   
+def SystemAction(connection, action):
+   response = send_and_receive(connection, action)
+   if (action in response):
+      return True
+   
+   return False
 
+# websocket functions
 async def send_message_async(message):
     await websocket.send_message(message)
 
@@ -210,6 +218,7 @@ webapi.api.ManageConnections = ManageConnections
 webapi.api.ControlClient = ControlClient
 webapi.api.ClientInformation = ClientInformation
 webapi.api.SendMessage = SendMessage
+webapi.api.SystemAction = SystemAction
 
 server_thread = threading.Thread(target=start_websocket_server)
 server_thread.daemon = True

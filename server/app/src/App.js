@@ -4,13 +4,19 @@ import Panel from './components/panel';
 import { useState } from 'react';
 
 // ENV Variables
-const protocol = process.env.PROTOCOL;
+const wsProtocol = process.env.WEBSOCKET_PROTOCOL;
+const webProtocol = process.env.WEB_PROTOCOL;
 const server = process.env.SERVER_HOST;
-const port = process.env.API_PORT;
+const apiPort = process.env.API_PORT;
+const wsPort = process.env.WEBSOCKET_PORT;
 
 const route = (parseInt(process.env.FETCH_WITH_PORT) == 1)
-  ? `${protocol}://${server}:${port}`
-  : `${protocol}://${server}`;
+  ? `${webProtocol}://${server}:${apiPort}`
+  : `${webProtocol}://${server}`;
+
+const webSocketRoute = (parseInt(process.env.FETCH_WITH_PORT) == 1)
+  ? `${wsProtocol}://${server}:${wsPort}`
+  : `${wsProtocol}://${server}`;
 
 function App()
 {
@@ -22,6 +28,7 @@ function App()
     <div className='container'>
       <Clients
         route={route}
+        webSocketRoute={webSocketRoute}
         triggerReload={triggerReload}
         setClient={setClient}
         setTriggerReload={setTriggerReload}

