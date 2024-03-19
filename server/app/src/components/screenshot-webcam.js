@@ -1,21 +1,33 @@
 import ScreenshotImage from '../images/screenshot.png';
 import WebcamImage from '../images/webcam.png';
+import LoadingBar from '../visuals/LoadingBar/loading-bar';
 
-import { useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 
-function Visual() {
+function Visual(args)
+{
+  const [screenshotLoading, setScreenshotLoading] = useState(false);
   const screenshot = useRef(null);
   const webcam = useRef(null);
 
-  useEffect(() => {
+  function CaptureScreenshot(event) {
+    screenshot.current.style.width = '0';
+    event.target.disabled = true;
+    setScreenshotLoading(true);
 
+    fetch(`${args.route}/api/screenshot`, {
+      method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+      screenshot.current.src = `data:image/png;base64,${data.image}`;
+      screenshot.current.style.width = '100%';
+      screenshot.current.style.height = '100%';
+      screenshot.current.style.padding = '0';
 
-  }, []);
-
-  function CaptureScreenshot() {
-    screenshot.current.style.width = '100%';
-    screenshot.current.style.height = '100%';
-    screenshot.current.style.padding = '0';
+      event.target.disabled = false;
+      setScreenshotLoading(false);
+    });
   }
 
   function CaptureWebcam() {
@@ -28,6 +40,7 @@ function Visual() {
     <>
       <div className='visual-components'>
         <div className='screenshot'>
+          {screenshotLoading ? <LoadingBar size={'medium'} height={22} /> : null}
           <img src={ScreenshotImage} ref={screenshot} alt='screenshot' />
         </div>
 

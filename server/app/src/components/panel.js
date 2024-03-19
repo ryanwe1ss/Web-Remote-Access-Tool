@@ -6,7 +6,9 @@ function Panel(args)
   if (args.client) {
     return (
       <div className='panel-container'>
-        <ScreenshotAndWebcamComponent />
+        <ScreenshotAndWebcamComponent
+          route={args.route}
+        />
 
         <div className='lower-functions'>
           <InteractUtilities

