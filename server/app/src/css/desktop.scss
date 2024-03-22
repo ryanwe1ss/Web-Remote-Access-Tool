@@ -36,6 +36,12 @@ body {
         font-size: 15px;
         padding: 5px;
         cursor: pointer;
+
+        .icons {
+          float: left;
+          margin-right: 5px;
+          font-size: 14px;
+        }
   
         .status {
           color: rgb(34, 194, 34);

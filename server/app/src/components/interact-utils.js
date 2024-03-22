@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import StatePrompt from '../visuals/SystemStateActionsModal/state-prompt';
+import {
+  HttpPost,
+}
+from '../utilities/requests';
 
 function InteractUtilities(args)
 {
@@ -19,10 +23,8 @@ function InteractUtilities(args)
     if (!message.current.value) return;
 
     const startTime = new Date().getTime();
-    const request = await fetch(`${args.route}/api/send-message`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: message.current.value }),
+    const request = await HttpPost('/api/send-message', {
+        message: message.current.value
     });
 
     const response = await request.json();
@@ -37,15 +39,14 @@ function InteractUtilities(args)
   }
 
   function AppendConnection() {
-    fetch(`${args.route}/api/append-connection`, {
-      method: 'POST'
-    })
-    .then(response => response.json())
-    .then(response => {
-      if (response.connected) {
-        args.setTriggerReload(Math.floor(Math.random() * 1000000));
+    HttpPost('/api/append-connection')
+      .then(response => response.json())
+      .then(response => {
+        if (response.connected) {
+          args.setTriggerReload(Math.floor(Math.random() * 1000000));
+        }
       }
-    });
+    );
   }
 
   function HandleSystemAction(action) {

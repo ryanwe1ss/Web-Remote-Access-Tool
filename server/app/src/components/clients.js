@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import LoadingBar from './../visuals/LoadingBar/loading-bar';
+import {
+  HttpPost,
+  HttpGet,
+} from './../utilities/requests';
 
 function Clients(args)
 {
@@ -22,14 +26,15 @@ function Clients(args)
     args.setClient(null);
     args.setSelectedClient(null);
 
-    fetch(`${args.route}/api/clients`)
+    HttpGet('/api/clients')
       .then(response => response.json())
       .then(clients => {
         noClients.current.textContent = (clients.length == 0) ? 'Listening for Clients' : null;
+        clientList.current.style.pointerEvents = 'all';
         setClients(clients);
 
         if (clients.length > 0) {
-          fetch(`${args.route}/api/client`)
+          HttpGet('/api/client')
             .then(response => response.json())
             .then(response => {
               if (response.connected) {
@@ -40,31 +45,29 @@ function Clients(args)
           );
         
         } else {
-          fetch(`${args.route}/api/append-connection`, {
-            method: 'POST',
-          });
+          HttpPost('/api/append-connection');
         }
       }
     );
 
   }, [args.triggerReload]);
 
-  async function ClientConnect(client) {
+  async function ClientConnect(client, index) {
     clientList.current.style.pointerEvents = 'none';
-    document.getElementById(client).style.display = 'block';
-
-    await fetch(`${args.route}/api/connect-client/${client}`, {
-      method: 'POST'
-    });
-
-    const response = await fetch(`${args.route}/api/client`);
+    document.getElementById(index).style.display = 'block';
+    
+    await HttpPost(`/api/connect-client/${client}`);
+    const response = await HttpGet('/api/client');
     const data = await response.json();
 
-    args.setClient(data);
-    args.setSelectedClient(client);
-
-    clientList.current.style.pointerEvents = 'all';
-    document.getElementById(client).style.display = 'none';
+    if (data.connected) {
+      args.setClient(data);
+      args.setSelectedClient(client);
+    
+    } else {
+      args.setTriggerReload(Math.floor(Math.random() * 1000000));
+    
+    } document.getElementById(index).style.display = 'none';
   }
   
   return (
@@ -78,15 +81,15 @@ function Clients(args)
         {clients && clients.map((client, index) => (
           <div
             key={index}
-            onClick={() => ClientConnect(client.connection_id)}
+            onClick={() => ClientConnect(client.connection_id, index)}
             className={`client ${args.selectedClient == client.connection_id ? 'selected' : ''}`}
             >
             <i className='bi bi-router status'></i>
-            <div className='username'>{client.username}</div>
-            <div className='computer'>{client.computer}</div>
-            <div className='ip'>{client.ip_address}</div>
+            <i className='bi bi-person-circle icons'></i><div className='username'>{client.username}</div>
+            <i className='bi bi-pc-display-horizontal icons'></i><div className='computer'>{client.computer}</div>
+            <i className='bi bi-reception-4 icons'></i><div className='ip'>{client.ip_address}</div>
 
-            <div className='loader' id={client.connection_id}>
+            <div className='loader' id={index}>
               <LoadingBar size={'tiny'}/>
             </div>
           </div>

@@ -1,10 +1,14 @@
+import { useState, useRef } from 'react';
+
 import ScreenshotImage from '../images/screenshot.png';
 import WebcamImage from '../images/webcam.png';
 import LoadingBar from '../visuals/LoadingBar/loading-bar';
+import {
+  HttpPost,
+}
+from '../utilities/requests';
 
-import { useState, useRef } from 'react';
-
-function Visual(args)
+function Visual()
 {
   const [screenshotLoading, setScreenshotLoading] = useState(false);
   const screenshot = useRef(null);
@@ -15,19 +19,18 @@ function Visual(args)
     event.target.disabled = true;
     setScreenshotLoading(true);
 
-    fetch(`${args.route}/api/screenshot`, {
-      method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-      screenshot.current.src = `data:image/png;base64,${data.image}`;
-      screenshot.current.style.width = '100%';
-      screenshot.current.style.height = '100%';
-      screenshot.current.style.padding = '0';
+    HttpPost('/api/screenshot')
+      .then(response => response.json())
+      .then(data => {
+        screenshot.current.src = `data:image/png;base64,${data.image}`;
+        screenshot.current.style.width = '100%';
+        screenshot.current.style.height = '100%';
+        screenshot.current.style.padding = '0';
 
-      event.target.disabled = false;
-      setScreenshotLoading(false);
-    });
+        event.target.disabled = false;
+        setScreenshotLoading(false);
+      }
+    );
   }
 
   function CaptureWebcam() {

@@ -2,7 +2,6 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import logging
 import sys
-import os
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -18,7 +17,13 @@ connectionRequiredRoutes = [
     '/api/append-connection',
     '/api/send-message',
     '/api/lock-computer',
+    '/api/restart-computer',
+    '/api/shutdown-computer',
+    '/api/screenshot',
 ]
+
+def get_connection_id():
+    return connection
 
 @api.before_request
 def before_request():

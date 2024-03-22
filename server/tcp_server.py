@@ -39,7 +39,7 @@ def receive(connection, decode=True, buffer=1024):
       return data.decode() if decode else data
    
    except (UnicodeDecodeError, IndexError, AttributeError, socket.error):
-      return None
+      return str()
    
 def receive_all(connection, decode=True, buffer=1024):
    try:
@@ -60,16 +60,17 @@ def receive_all(connection, decode=True, buffer=1024):
       return data.decode() if decode else data
 
    except (IndexError, AttributeError, socket.error):
-      return None
+      return str()
 
 def send_and_receive(connection, data, provideSize=False, decode=True):
    try:
       client = None
 
       for c in clients:
-         if (c['connection_id'] == int(connection)):
-            client = c['socket']
-            break
+         if (connection):
+            if (c['connection_id'] == int(connection)):
+               client = c['socket']
+               break
 
       if (client is None):
          raise socket.error
@@ -87,7 +88,7 @@ def send_and_receive(connection, data, provideSize=False, decode=True):
       return data.decode() if decode else data
 
    except (IndexError, AttributeError, socket.error):
-      return None
+      return str()
 
 def isConnected(connection):
    try:
@@ -156,7 +157,7 @@ def ControlClient(command, connection):
 def ClientInformation(connection):
    response = send_and_receive(connection, 'ping')
    if not ('ping' in response):
-      return None
+      return str()
 
    for client in clients:
       if (client['connection_id'] == connection):
@@ -244,23 +245,25 @@ def RemoteConnect(server, port):
          break
 
 def DetectChanges():
-    hasChanges = False
+   connectionId = webapi.get_connection_id()
 
-    for client in clients:
-        try:
+   if (connectionId is None):
+      lostConnectionFlag = False
+
+      for client in clients:
+         try:
             response = send_and_receive(client['connection_id'], 'ping')
             if 'ping' not in response:
-                raise socket.error
+               raise socket.error
             
-        except (socket.error, ValueError):
+         except (socket.error, ValueError):
             clients.remove(client)
-            hasChanges = True
+            lostConnectionFlag = True
+      
+      if (lostConnectionFlag):
+         send_message_threadsafe()
 
-    if (hasChanges):
-        send_message_threadsafe()
-
-    hasChanges = False
-    threading.Timer(3, DetectChanges).start()
+   threading.Timer(1, DetectChanges).start()
 
 webapi.api.ManageConnections = ManageConnections
 webapi.api.ControlClient = ControlClient

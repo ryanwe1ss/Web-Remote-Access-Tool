@@ -1,4 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
+import {
+  HttpPost,
+}
+from '../../utilities/requests';
 import './state-prompt.scss';
 
 function StatePrompt(args)
@@ -33,28 +37,27 @@ function StatePrompt(args)
       hasEnded: false
     });
 
-    fetch(`${args.route}/api/shutdown-computer`, {
-      method: 'POST'
-    })
-    .then(response => response.json())
-    .then(response => {
-      if (response.shutdown) {
+    HttpPost('/api/shutdown-computer')
+      .then(response => response.json())
+      .then(response => {
+        if (response.shutdown) {
+          setStatus({
+            message: 'Computer shutdown',
+            hasEnded: true
+          });
+          setTimeout(() => args.switchOn(false), 2000);
+        }
+      })
+      .catch(() => {
+        shutdownYes.current.disabled = false;
+        shutdownNo.current.disabled = false;
+
         setStatus({
-          message: 'Computer shutdown',
+          message: 'Failed to shutdown computer',
           hasEnded: true
         });
-        setTimeout(() => args.switchOn(false), 2000);
       }
-    })
-    .catch(() => {
-      shutdownYes.current.disabled = false;
-      shutdownNo.current.disabled = false;
-
-      setStatus({
-        message: 'Failed to shutdown computer',
-        hasEnded: true
-      });
-    });
+    );
   } 
 
   function RestartComputer() {
@@ -65,28 +68,27 @@ function StatePrompt(args)
       hasEnded: false
     });
 
-    fetch(`${args.route}/api/restart-computer`, {
-      method: 'POST'
-    })
-    .then(response => response.json())
-    .then(response => {
-      if (response.restarted) {
+    HttpPost('/api/restart-computer')
+      .then(response => response.json())
+      .then(response => {
+        if (response.restarted) {
+          setStatus({
+            message: 'Computer restarted',
+            hasEnded: true
+          });
+          setTimeout(() => args.switchOn(false), 2000);
+        }
+      })
+      .catch(() => {
+        restartYes.current.disabled = false;
+        restartNo.current.disabled = false;
+
         setStatus({
-          message: 'Computer restarted',
+          message: 'Failed to restart computer',
           hasEnded: true
         });
-        setTimeout(() => args.switchOn(false), 2000);
       }
-    })
-    .catch(() => {
-      restartYes.current.disabled = false;
-      restartNo.current.disabled = false;
-
-      setStatus({
-        message: 'Failed to restart computer',
-        hasEnded: true
-      });
-    })
+    );
   }
 
   function LockComputer() {
@@ -97,28 +99,27 @@ function StatePrompt(args)
       hasEnded: false
     });
 
-    fetch(`${args.route}/api/lock-computer`, {
-      method: 'POST'
-    })
-    .then(response => response.json())
-    .then(response => {
-      if (response.locked) {
+    HttpPost('/api/lock-computer')
+      .then(response => response.json())
+      .then(response => {
+        if (response.locked) {
+          setStatus({
+            message: 'Computer locked',
+            hasEnded: true
+          });
+          setTimeout(() => args.switchOn(false), 2000);
+        }
+      })
+      .catch(() => {
+        lockYes.current.disabled = false;
+        lockNo.current.disabled = false;
+
         setStatus({
-          message: 'Computer locked',
+          message: 'Failed to lock computer',
           hasEnded: true
         });
-        setTimeout(() => args.switchOn(false), 2000);
       }
-    })
-    .catch(() => {
-      lockYes.current.disabled = false;
-      lockNo.current.disabled = false;
-
-      setStatus({
-        message: 'Failed to lock computer',
-        hasEnded: true
-      });
-    });
+    );
   }
 
   if (args.show) {
