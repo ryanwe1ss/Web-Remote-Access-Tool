@@ -5,7 +5,7 @@ function LoadingBar(args) {
     return (
       <div
         className='large-spinner'
-        style={{margin: `${args.height ? args.height : 0}% auto`}}
+        style={{ margin: `${args.height ? `${args.height}px` : '0%'} auto` }}
       />
     );
 
@@ -13,7 +13,7 @@ function LoadingBar(args) {
     return (
       <div
         className='medium-spinner'
-        style={{margin: `${args.height ? args.height : 0}% auto`}}
+        style={{ margin: `${args.height ? `${args.height}px` : '0%'} auto` }}
       />
     );
   
@@ -21,7 +21,7 @@ function LoadingBar(args) {
     return (
       <div
         className='small-spinner'
-        style={{margin: `${args.height ? args.height : 0}% auto`}}
+        style={{ margin: `${args.height ? `${args.height}px` : '0%'} auto` }}
       />
     );
   
@@ -29,7 +29,7 @@ function LoadingBar(args) {
     return (
       <div
         className='tiny-spinner'
-        style={{margin: `${args.height ? args.height : 0}% auto`}}
+        style={{ margin: `${args.height ? `${args.height}px` : '0%'} auto` }}
       />
     );
   }

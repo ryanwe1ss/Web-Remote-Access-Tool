@@ -2,7 +2,10 @@ import { useState, useRef } from 'react';
 
 import ScreenshotImage from '../images/screenshot.png';
 import WebcamImage from '../images/webcam.png';
+
 import LoadingBar from '../visuals/LoadingBar/loading-bar';
+import CaptureView from '../visuals/CapturePrompts/screenshot';
+
 import {
   HttpPost,
 }
@@ -14,41 +17,47 @@ function Visual()
   const screenshot = useRef(null);
   const webcam = useRef(null);
 
-  function CaptureScreenshot(event) {
+  const [captureView, setCaptureView] = useState(false);
+  const [captureDuration, setCaptureDuration] = useState({});
+
+  async function CaptureScreenshot(event) {
     screenshot.current.style.width = '0';
     event.target.disabled = true;
     setScreenshotLoading(true);
 
-    HttpPost('/api/screenshot')
-      .then(response => response.json())
-      .then(data => {
-        screenshot.current.src = `data:image/png;base64,${data.image}`;
-        screenshot.current.style.width = '100%';
-        screenshot.current.style.height = '100%';
-        screenshot.current.style.padding = '0';
+    const start = Date.now();
+    const response = await HttpPost('/api/screenshot');
+    const data = await response.json();
 
-        event.target.disabled = false;
-        setScreenshotLoading(false);
-      }
-    );
+    screenshot.current.src = `data:image/png;base64,${data.image}`;
+    screenshot.current.classList.remove('default');
+    screenshot.current.style.width = 'initial';
+
+    event.target.disabled = false;
+    setScreenshotLoading(false);
+    setCaptureDuration(Date.now() - start);
   }
 
   function CaptureWebcam() {
-    webcam.current.style.width = '100%';
-    webcam.current.style.height = '100%';
-    webcam.current.style.padding = '0';
+    // ...
+  }
+
+  function RenderCapture() {
+    if (!screenshot.current.classList.contains('default')) {
+      setCaptureView(true);
+    }
   }
 
   return (
     <>
       <div className='visual-components'>
-        <div className='screenshot'>
-          {screenshotLoading ? <LoadingBar size={'medium'} height={22} /> : null}
-          <img src={ScreenshotImage} ref={screenshot} alt='screenshot' />
+        <div className='screenshot' onClick={RenderCapture}>
+          {screenshotLoading && <LoadingBar size={'small'} height={110} />}
+          <img src={ScreenshotImage} className='default' ref={screenshot} alt='screenshot' />
         </div>
 
         <div className='webcam'>
-          <img src={WebcamImage} ref={webcam} alt='webcam' />
+          <img src={WebcamImage} className='default' ref={webcam} alt='webcam' />
         </div>
       </div>
 
@@ -59,6 +68,12 @@ function Visual()
         </div>
         <hr/>
       </div>
+      <CaptureView
+        show={captureView}
+        image={screenshot}
+        duration={captureDuration}
+        setCaptureView={setCaptureView}
+      />
     </>
   );
 }

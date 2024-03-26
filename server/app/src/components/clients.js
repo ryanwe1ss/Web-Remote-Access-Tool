@@ -13,7 +13,7 @@ function Clients(args)
 
   useEffect(() => {
     const socket = new WebSocket(args.webSocketRoute);
-
+    
     socket.onmessage = (event) => {
       const clients = JSON.parse(event.data.replace(/'/g, '"'));
       noClients.current.textContent = (clients.length == 0) ? 'Listening for Clients' : null;

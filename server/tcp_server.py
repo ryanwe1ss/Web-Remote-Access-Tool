@@ -248,8 +248,6 @@ def DetectChanges():
    connectionId = webapi.get_connection_id()
 
    if (connectionId is None):
-      lostConnectionFlag = False
-
       for client in clients:
          try:
             response = send_and_receive(client['connection_id'], 'ping')
@@ -258,10 +256,8 @@ def DetectChanges():
             
          except (socket.error, ValueError):
             clients.remove(client)
-            lostConnectionFlag = True
       
-      if (lostConnectionFlag):
-         send_message_threadsafe()
+      send_message_threadsafe()
 
    threading.Timer(1, DetectChanges).start()
 

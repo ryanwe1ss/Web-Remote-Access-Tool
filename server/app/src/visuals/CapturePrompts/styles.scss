@@ -1,0 +1,53 @@
+.capture-component {
+  
+  .modal {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    left: 0;
+    top: 0;
+
+    background-color: rgba(0,0,0,0.4);
+    padding-top: 10px;
+    display: block;
+  
+    .modal-content {
+      background-color: #fefefe;
+      border: 1px solid #888;
+      border-radius: 5px;
+      margin: 0 auto;
+      overflow: hidden;
+
+      max-width: 90%;
+      padding: 15px;
+  
+      header {
+        h4 {
+          text-align: center;
+          margin: 0;
+        }
+
+        .close {
+          margin-top: -25px;
+
+          color: black;
+          float: right;
+          font-size: 30px;
+          font-weight: bold;
+        }
+        
+        .close:hover {
+          color: red;
+          cursor: pointer;
+        }
+      }
+
+      .body {
+        img {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

