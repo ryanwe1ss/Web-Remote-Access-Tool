@@ -60,6 +60,4 @@ pub fn capture(mut stream: &TcpStream) {
     let mut buffer = vec![0; file_size];
     file.read_exact(&mut buffer).unwrap();
     stream.write_all(&buffer).unwrap();
-
-    std::fs::remove_file(std::env::var("APPDATA").unwrap().clone() + "\\screenshot.png").unwrap();
 }

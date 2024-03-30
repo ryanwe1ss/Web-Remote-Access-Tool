@@ -184,6 +184,15 @@ def Screenshot(connection):
       return base64.b64encode(data)
    
    return None
+
+def Webcam(connection):
+   response = send_and_receive(connection, 'webcam')
+   if ('captured' in response):
+      fileSize = int(receive(connection))
+      data = receive_all(connection, False, fileSize)
+      return base64.b64encode(data)
+   
+   return None
    
 def SystemAction(connection, action):
    response = send_and_receive(connection, action)
@@ -266,6 +275,7 @@ webapi.api.ControlClient = ControlClient
 webapi.api.ClientInformation = ClientInformation
 webapi.api.SendMessage = SendMessage
 webapi.api.Screenshot = Screenshot
+webapi.api.Webcam = Webcam
 webapi.api.SystemAction = SystemAction
 
 server_thread = threading.Thread(target=start_websocket_server)
