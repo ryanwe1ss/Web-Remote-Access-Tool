@@ -74,6 +74,8 @@ def send_and_receive(connection, data, provideSize=False, decode=True):
 
       if (client is None):
          raise socket.error
+      
+      client.settimeout(5)
 
       if (provideSize):
          client.send(bytes(str(len(data)), 'utf-8'))
@@ -87,8 +89,8 @@ def send_and_receive(connection, data, provideSize=False, decode=True):
       data = client.recv(1024)
       return data.decode() if decode else data
 
-   except (IndexError, AttributeError, socket.error):
-      return str()
+   except (IndexError, AttributeError, socket.error, socket.timeout):
+      return 'error'
 
 def isConnected(connection):
    try:
@@ -175,6 +177,8 @@ def SendMessage(connection, message):
    if ('message' in response):
       status = send_and_receive(connection, message, True)
       return status
+   
+   return None
    
 def Screenshot(connection):
    response = send_and_receive(connection, 'screenshot')
@@ -270,6 +274,7 @@ def DetectChanges():
 
    threading.Timer(1, DetectChanges).start()
 
+webapi.api.isConnected = isConnected
 webapi.api.ManageConnections = ManageConnections
 webapi.api.ControlClient = ControlClient
 webapi.api.ClientInformation = ClientInformation

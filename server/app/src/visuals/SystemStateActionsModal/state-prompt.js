@@ -40,6 +40,10 @@ function StatePrompt(args)
     HttpPost('/api/shutdown-computer')
       .then(response => response.json())
       .then(response => {
+        if (response.connected == false) {
+          throw new Error();
+        }
+
         if (response.shutdown) {
           setStatus({
             message: 'Computer shutdown',
@@ -56,6 +60,8 @@ function StatePrompt(args)
           message: 'Failed to shutdown computer',
           hasEnded: true
         });
+
+        setTimeout(() => args.DisconnectPanel(), 2000);
       }
     );
   } 
@@ -71,6 +77,10 @@ function StatePrompt(args)
     HttpPost('/api/restart-computer')
       .then(response => response.json())
       .then(response => {
+        if (response.connected == false) {
+          throw new Error();
+        }
+
         if (response.restarted) {
           setStatus({
             message: 'Computer restarted',
@@ -87,6 +97,8 @@ function StatePrompt(args)
           message: 'Failed to restart computer',
           hasEnded: true
         });
+
+        setTimeout(() => args.DisconnectPanel(), 2000);
       }
     );
   }
@@ -102,6 +114,11 @@ function StatePrompt(args)
     HttpPost('/api/lock-computer')
       .then(response => response.json())
       .then(response => {
+        console.log(response);
+        if (response.connected == false) {
+          throw new Error();
+        }
+        
         if (response.locked) {
           setStatus({
             message: 'Computer locked',
@@ -118,6 +135,8 @@ function StatePrompt(args)
           message: 'Failed to lock computer',
           hasEnded: true
         });
+
+        setTimeout(() => args.DisconnectPanel(), 2000);
       }
     );
   }

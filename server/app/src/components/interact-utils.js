@@ -31,22 +31,19 @@ function InteractUtilities(args)
     const timeInMs = new Date().getTime() - startTime;
 
     messageResponse.current.innerHTML = (response.sent)
-      ? `Message sent in ${(timeInMs / 1000).toFixed(2)}s (${timeInMs}ms)`
-      : 'Failed to send message. Please try again.';
+      ? `Sent in ${(timeInMs / 1000).toFixed(2)}s (${timeInMs}ms)`
+      : 'Failed to send message';
 
     messageResponseBody.current.style.display = 'block';
     message.current.value = null;
+
+    if (response.connected == false)
+      setTimeout(() => args.DisconnectPanel(), 2000);
   }
 
   function AppendConnection() {
     HttpPost('/api/append-connection')
-      .then(response => response.json())
-      .then(response => {
-        if (response.connected) {
-          args.setTriggerReload(Math.floor(Math.random() * 1000000));
-        }
-      }
-    );
+      .then(() => args.DisconnectPanel());
   }
 
   function HandleSystemAction(action) {
@@ -88,7 +85,7 @@ function InteractUtilities(args)
           </button>
 
           <div className='message-sent' ref={messageResponseBody}>
-            <i className='bi bi-check-circle success'></i>&nbsp;
+            <i className='bi bi-info-circle success'></i>&nbsp;
             <span ref={messageResponse}></span>
           </div>
         </div>
@@ -99,6 +96,7 @@ function InteractUtilities(args)
         show={statePrompt}
         switchOn={setStatePrompt}
         systemAction={systemAction}
+        DisconnectPanel={args.DisconnectPanel}
       />
     </div>
   );

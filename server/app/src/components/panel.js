@@ -8,13 +8,14 @@ function Panel(args)
       <div className='panel-container'>
         <ScreenshotAndWebcamComponent
           route={args.route}
+          DisconnectPanel={args.DisconnectPanel}
         />
 
         <div className='lower-functions'>
           <InteractUtilities
             route={args.route}
             client={args.client}
-            setTriggerReload={args.setTriggerReload}
+            DisconnectPanel={args.DisconnectPanel}
           />
         </div>
       </div>

@@ -12,6 +12,10 @@ function App()
   const [client, setClient] = useState(null);
   const [selectedClient, setSelectedClient] = useState(null);
   const [triggerReload, setTriggerReload] = useState(0);
+
+  function DisconnectPanel() {
+    setTriggerReload(Math.floor(Math.random() * 1000000));
+  }
   
   return (
     <div className='container'>
@@ -19,13 +23,13 @@ function App()
         webSocketRoute={webSocketRoute}
         triggerReload={triggerReload}
         setClient={setClient}
-        setTriggerReload={setTriggerReload}
+        DisconnectPanel={DisconnectPanel}
         selectedClient={selectedClient}
         setSelectedClient={setSelectedClient}
       />
       <Panel
         client={client}
-        setTriggerReload={setTriggerReload}
+        DisconnectPanel={DisconnectPanel}
       />
     </div>
   );

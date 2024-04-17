@@ -28,9 +28,15 @@ def get_connection_id():
 
 @api.before_request
 def before_request():
+    global connection
+
     if (request.path in connectionRequiredRoutes):
         if (connection is None):
             return jsonify({'connected': False, 'message': 'Not connected to a client.'})
+        
+        if (not api.isConnected(connection)):
+            connection = None
+            return jsonify({'connected': False, 'message': 'Disconnected from client.'})
 
 # GET REQUESTS
 @api.get('/api/clients')

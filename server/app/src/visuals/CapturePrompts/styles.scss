@@ -17,9 +17,10 @@
       border: 1px solid #888;
       border-radius: 5px;
       margin: 0 auto;
-      overflow: hidden;
+      overflow: auto;
 
       max-width: 90%;
+      max-height: 92%;
       padding: 15px;
   
       header {
@@ -45,7 +46,7 @@
 
       .body {
         img {
-          width: 100%;
+          max-width: 100%;
         }
       }
     }

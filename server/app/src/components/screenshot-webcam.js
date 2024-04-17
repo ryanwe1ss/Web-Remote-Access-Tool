@@ -11,7 +11,7 @@ import {
 }
 from '../utilities/requests';
 
-function Visual()
+function Visual(args)
 {
   const [screenshotLoading, setScreenshotLoading] = useState(false);
   const [webcamLoading, setWebcamLoading] = useState(false);
@@ -35,6 +35,11 @@ function Visual()
     const response = await HttpPost('/api/screenshot');
     const data = await response.json();
 
+    if (data.connected == false) {
+      setTimeout(() => args.DisconnectPanel(), 2000);
+      return;
+    }
+
     screenshot.current.src = `data:image/png;base64,${data.image}`;
     screenshot.current.classList.remove('default');
     screenshot.current.style.width = 'initial';
@@ -50,6 +55,11 @@ function Visual()
     const start = Date.now();
     const response = await HttpPost('/api/webcam');
     const data = await response.json();
+
+    if (data.connected == false) {
+      setTimeout(() => args.DisconnectPanel(), 2000);
+      return;
+    }
 
     webcam.current.src = (data.captured) ? `data:image/png;base64,${data.image}` : WebcamImage;
     if (data.captured) {

@@ -65,7 +65,7 @@ function Clients(args)
       args.setSelectedClient(client);
     
     } else {
-      args.setTriggerReload(Math.floor(Math.random() * 1000000));
+      args.DisconnectPanel();
     
     } document.getElementById(index).style.display = 'none';
   }

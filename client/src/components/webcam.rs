@@ -1,7 +1,10 @@
 use std::net::TcpStream;
-use std::io::{Read, Write};
+use std::io::Write;
 
 pub fn capture(mut stream: &TcpStream) {
+  stream.write_all("failed-create".as_bytes()).unwrap();
+
+  /*
   let camera = match camera_capture::create(0) {
     Ok(cam) => cam,
     Err(_) => {
@@ -39,4 +42,5 @@ pub fn capture(mut stream: &TcpStream) {
     file.read_exact(&mut buffer).unwrap();
     stream.write_all(&buffer).unwrap();
   }
+  */
 }
