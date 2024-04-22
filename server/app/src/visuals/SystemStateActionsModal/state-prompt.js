@@ -114,7 +114,6 @@ function StatePrompt(args)
     HttpPost('/api/lock-computer')
       .then(response => response.json())
       .then(response => {
-        console.log(response);
         if (response.connected == false) {
           throw new Error();
         }

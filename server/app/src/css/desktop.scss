@@ -148,6 +148,7 @@ body {
     .lower-functions {
       display: flex;
       padding-left: 8px;
+      overflow: hidden;
       height: 100%;
 
       .left-panel {
@@ -262,6 +263,91 @@ body {
                 font-size: 18px;
               }
             }
+          }
+        }
+      }
+
+      .right-panel {
+        padding-left: 8px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        width: 50%;
+
+        .elements {
+          white-space: nowrap;
+          padding: 2px;
+
+          .filter {
+            
+            .file-path {
+              font-size: 17px;
+              height: 30px;
+              width: 80%;
+            }
+
+            .search-btn {
+              background-color: #1b3e63;
+              margin-left: 3px;
+              font-size: 14px;
+              border: none;
+              border-radius: 3px;
+              color: #FFF;
+              cursor: pointer;
+              padding: 5px;
+              height: 36px;
+              width: 16%;
+
+              &:hover {
+                background-color: #0f2a45;
+              }
+            }
+          }
+
+          .file-explorer {
+            
+            table {
+              border-collapse: collapse;
+              width: 100%;
+
+              thead {
+
+                th {
+                  background-color: #1b3e63;
+                  text-align: left;
+                  font-size: 16px;
+                  color: #FFF;
+                  padding: 5px;
+                }
+              }
+
+              tbody {
+
+                tr td:first-child {
+                  cursor: pointer;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                  overflow: hidden;
+
+                  max-width: 200px;
+                  overflow: hidden;
+                }
+
+                td {
+                  border-bottom: 1px solid #000;
+                  font-size: 15px;
+                  padding: 5px;
+                }
+  
+                td:hover {
+                  background-color: #dbdbda;
+                }
+              }
+            }
+          }
+
+          hr {
+            margin: 10px 0px;
+            width: 98%;
           }
         }
       }

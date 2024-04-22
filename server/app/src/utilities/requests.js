@@ -19,12 +19,12 @@ export function HttpPost(path, body, stringify=true, headers=true)
   });
 }
 
-export function HttpGet(path)
+export function HttpGet(path, headers=true)
 {
   EnableOrDisableButtons();
   return fetch(`${route}${path}`, {
     method: 'GET',
-    headers: {'Content-Type': 'application/json'}
+    headers: headers ? {'Content-Type': 'application/json'} : {},
   })
   .then((response) => {
     EnableOrDisableButtons(false);
