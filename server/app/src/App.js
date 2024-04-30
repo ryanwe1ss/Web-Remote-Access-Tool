@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import Clients from './components/clients';
-import Panel from './components/panel';
+import Clients from './interface/clients';
+import Panel from './interface/panel';
 
 const webSocketRoute = (parseInt(process.env.FETCH_WITH_PORT) == 1)
   ? `${process.env.WEBSOCKET_PROTOCOL}://${process.env.SERVER_HOST}:${process.env.WEBSOCKET_PORT}`

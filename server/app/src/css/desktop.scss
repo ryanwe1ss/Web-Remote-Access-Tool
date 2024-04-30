@@ -271,35 +271,84 @@ body {
         padding-left: 8px;
         overflow-x: hidden;
         overflow-y: auto;
+
+        display: flex;
         width: 50%;
 
         .elements {
+          display: flex;
+          flex-direction: column;
+
           white-space: nowrap;
           padding: 2px;
+          width: 98%;
 
           .filter {
+            display: flex;
             
             .file-path {
               font-size: 17px;
               height: 30px;
-              width: 80%;
+              width: 100%;
             }
 
-            .search-btn {
-              background-color: #1b3e63;
-              margin-left: 3px;
-              font-size: 14px;
-              border: none;
-              border-radius: 3px;
-              color: #FFF;
-              cursor: pointer;
-              padding: 5px;
-              height: 36px;
-              width: 16%;
+            .search-btn, .back-btn {
+              max-width: 70px;
+              min-width: 70px;
+            }
+
+            .back-btn {
+              max-width: 45px;
+              min-width: 45px;
+            }
+          }
+
+          .functions {
+            
+            .add-file, .add-folder {
+              background-color: #4CAF50;
+              font-size: 16px;
+              max-width: 45px;
+              min-width: 45px;
+              color: black;
 
               &:hover {
-                background-color: #0f2a45;
+                background-color: #45a049;
               }
+            }
+
+            .delete-file, .delete-folder {
+              background-color: #f44336;
+              font-size: 16px;
+              max-width: 45px;
+              min-width: 45px;
+              color: black;
+
+              &:hover {
+                background-color: #da3c2f;
+              }
+            }
+
+            .disabled {
+              pointer-events: none;
+            }
+          }
+
+          .search-btn, .back-btn, .add-file, .add-folder, .delete-file, .delete-folder {
+            flex: 1;
+
+            background-color: #1b3e63;
+            margin-left: 3px;
+            font-size: 14px;
+            border: none;
+            border-radius: 3px;
+            color: #FFF;
+            cursor: pointer;
+            padding: 5px;
+            height: 36px;
+
+            &:hover {
+              background-color: #0f2a45;
             }
           }
 

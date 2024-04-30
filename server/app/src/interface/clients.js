@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import LoadingBar from './../visuals/LoadingBar/loading-bar';
+import LoadingBar from '../modals/LoadingBar/loading-bar';
 import {
   HttpPost,
   HttpGet,
-} from './../utilities/requests';
+} from '../utilities/requests';
 
 function Clients(args)
 {

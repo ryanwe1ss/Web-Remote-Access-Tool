@@ -3,8 +3,8 @@ import { useState, useRef } from 'react';
 import ScreenshotImage from '../images/screenshot.png';
 import WebcamImage from '../images/webcam.png';
 
-import LoadingBar from '../visuals/LoadingBar/loading-bar';
-import CaptureView from '../visuals/CapturePrompts/screenshot';
+import LoadingBar from '../modals/LoadingBar/loading-bar';
+import CaptureView from '../modals/CapturePrompts/screenshot';
 
 import {
   HttpPost,
