@@ -39,7 +39,10 @@ function Clients(args)
             .then(response => {
               if (response.connected) {
                 args.setSelectedClient(response.client.connection_id);
-                args.setClient(response.client.connection_id);
+                args.setClient({
+                  'connected': true,
+                  'client': response.client,
+                });
               }
             }
           );

@@ -9,7 +9,7 @@ function InteractUtilities(args)
   return (
     <React.Fragment>
       <LeftPanel DisconnectPanel={args.DisconnectPanel} />
-      <RightPanel />
+      <RightPanel client={args.client} />
     </React.Fragment>
   );
 }

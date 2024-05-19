@@ -329,6 +329,12 @@ body {
               }
             }
 
+            .drive-select {
+              float: right;
+              height: 35px;
+              width: 100px;
+            }
+
             .disabled {
               pointer-events: none;
             }

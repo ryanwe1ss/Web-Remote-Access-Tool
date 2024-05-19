@@ -22,6 +22,7 @@ connectionRequiredRoutes = [
     '/api/screenshot',
     '/api/webcam',
     '/api/files',
+    '/api/upload-file',
 ]
 
 def get_connection_id():
@@ -68,6 +69,16 @@ def getClient():
         'connected': connection is not None,
         'client': api.ClientInformation(connection),
     }
+
+@api.post('/api/drives')
+def getDrives():
+    global connection
+
+    drives = api.GetDrives(connection)
+    if (drives is None):
+        return jsonify({'retrieved': False, 'message': 'Unable to get drives'})
+
+    return jsonify({'retrieved': True, 'drives': drives})
 
 @api.post('/api/files')
 def getFiles():
@@ -160,3 +171,15 @@ def Webcam():
         return jsonify({'captured': True, 'message': 'Webcam Captured', 'image': str(result, 'utf-8')})
     else:
         return jsonify({'captured': False, 'message': 'Unable to Capture Webcam', 'image': None})
+    
+@api.post('/api/upload-file')
+def UploadFile():
+    global connection
+
+    file = request.files['file']
+    path = request.form['path']
+
+    if (api.UploadFile(connection, path, file.filename, file.read())):
+        return jsonify({'uploaded': True, 'message': 'File Uploaded'})
+    else:
+        return jsonify({'uploaded': False, 'message': 'Unable to Upload File'})

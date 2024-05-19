@@ -1,0 +1,92 @@
+.upload-file-component {
+  
+  .modal {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    left: 0;
+    top: 0;
+
+    background-color: rgba(0,0,0,0.4);
+    padding-top: 10px;
+    display: block;
+  
+    .modal-content {
+      background-color: #fefefe;
+      border: 1px solid #888;
+      border-radius: 5px;
+      margin: 50px auto;
+      overflow: auto;
+
+      max-width: 400px;
+      max-height: 92%;
+      padding: 15px;
+  
+      header {
+        h4 {
+          text-align: center;
+          margin: 0;
+        }
+
+        .close {
+          margin-top: -25px;
+
+          color: black;
+          float: right;
+          font-size: 30px;
+          font-weight: bold;
+        }
+        
+        .close:hover {
+          color: red;
+          cursor: pointer;
+        }
+      }
+
+      .body {
+
+        .file-input {
+          display: none;
+        }
+        
+        .drop-file {
+          border: 2px dashed #ccc;
+          border-radius: 5px;
+          padding: 20px;
+          text-align: center;
+          margin: 10px 0;
+          cursor: pointer;
+        }
+
+        .upload-btn {
+          display: inline-block;
+          font-weight: bold;
+          font-size: 16px;
+
+          padding: 6px;
+          width: 100%;
+
+          background-color: #1b3e63;
+          border-radius: 5px;
+          color: white;
+          border: none;
+
+          &:hover {
+            background-color: #0f2a45;
+            cursor: pointer;
+          }
+        }
+
+        .drag-over {
+          border: 2px dashed #1b3e63;
+        }
+
+        .disabled {
+          background-color: #CCC;
+          pointer-events: none;
+        }
+      }
+    }
+  }
+}
