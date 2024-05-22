@@ -25,20 +25,13 @@ function RightPanel(args)
   const deleteFolder = useRef(null);
 
   useEffect(() => {
-    if (args.client?.connected) {
+    if (args.client.connected) {
       deleteFile.current.classList.add('disabled');
       deleteFolder.current.classList.add('disabled');
       FetchFiles();
     }
 
   }, [args.client]);
-
-  useEffect(() => {
-    if (drive != '/') {
-      FetchFiles();
-    }
-
-  }, [drive]);
 
   function FetchDrives() {
     HttpPost('/api/drives')
@@ -48,11 +41,12 @@ function RightPanel(args)
         
         setDrive(`${drives[0]}:/`);
         setDrives(drives);
-      });
+      }
+    );
   }
 
-  function FetchFiles(directory='/') {
-    const fullPath = (drive + directory).replace('//', '/');
+  function FetchFiles(directory='/', optionalDrive=null) {
+    const fullPath = ((optionalDrive != null ? optionalDrive : drive) + directory).replace('//', '/');
 
     HttpPost(`/api/files`, {'path': fullPath})
     .then(response => response.json())
@@ -62,8 +56,8 @@ function RightPanel(args)
       }
 
       if (!drivesRetrieved) {
-        FetchDrives();
         setDrivesRetrieved(true);
+        FetchDrives();
       }
 
       const files = [];
@@ -96,6 +90,10 @@ function RightPanel(args)
     FetchFiles(fullPath);
   }
 
+  function BrowseFolder() {
+    FetchFiles(filePath.current.value);
+  }
+
   function BackFolder() {
     path.pop();
     filePath.current.value = path.join('/');
@@ -104,9 +102,11 @@ function RightPanel(args)
   }
   
   function SwitchDrive(event) {
+    const newDrive = `${event.target.value}:/`;
     filePath.current.value = null;
 
-    setDrive(`${event.target.value}:/`);
+    FetchFiles('/', newDrive);
+    setDrive(newDrive);
     setPath([]);
   }
 
@@ -124,7 +124,7 @@ function RightPanel(args)
           &nbsp;
 
           <input type='text' placeholder='File Path...' ref={filePath} className='file-path' />
-          <input type='button' value='Browse' className='search-btn' onClick={FetchFiles} />
+          <input type='button' value='Browse' className='search-btn' onClick={BrowseFolder} />
         </div>
 
         <hr/>
@@ -146,12 +146,9 @@ function RightPanel(args)
           </button>
 
           <select className='drive-select' onChange={SwitchDrive}>
-            <option value={'C'}>C:/</option>
-            <option value={'D'}>D:/</option>
-
-            {/* {drives.map((drive, index) => {
+            {drives.map((drive, index) => {
               return <option key={index} value={drive}>{`${drive}:/`}</option>
-            })} */}
+            })}
           </select>
         </div>
         <hr/>

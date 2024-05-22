@@ -40,8 +40,8 @@ def send(connection, data):
       else:
          client.send(data.encode())
          
-   except (IndexError, AttributeError, socket.error):
-      return str()
+   except (IndexError, AttributeError, socket.error, socket.timeout):
+      return None
 
 def receive(connection, decode=True, buffer=1024):
    try:
@@ -59,7 +59,7 @@ def receive(connection, decode=True, buffer=1024):
       return data.decode() if decode else data
    
    except (UnicodeDecodeError, IndexError, AttributeError, socket.error):
-      return str()
+      return None
    
 def receive_all(connection, decode=True, buffer=1024):
    try:
@@ -79,8 +79,8 @@ def receive_all(connection, decode=True, buffer=1024):
 
       return data.decode() if decode else data
 
-   except (IndexError, AttributeError, socket.error):
-      return str()
+   except (IndexError, AttributeError, socket.error, socket.timeout):
+      return None
 
 def send_and_receive(connection, data, provideSize=False, decode=True):
    try:
@@ -110,7 +110,7 @@ def send_and_receive(connection, data, provideSize=False, decode=True):
       return data.decode() if decode else data
 
    except (IndexError, AttributeError, socket.error, socket.timeout):
-      return 'error'
+      return None
 
 def isConnected(connection):
    try:
