@@ -1,3 +1,4 @@
+use std::io::{Write, Read};
 use std::net::TcpStream;
 use std::fs;
 
@@ -19,6 +20,7 @@ pub fn get_drives(stream: &TcpStream) {
     }
   }
 
+  utilities::wait_for_packet(&stream);
   utilities::send_bytes(&stream, drives.as_bytes());
 }
 
@@ -52,4 +54,53 @@ pub fn get_files(stream: &TcpStream) {
 
   utilities::wait_for_packet(&stream);
   utilities::send_bytes(&stream, files.as_bytes());
+}
+
+pub fn upload(mut stream: &TcpStream) {
+  stream.write_all("upload-file".as_bytes()).unwrap();
+
+  let target_folder = utilities::read_bytes_as_string(&stream, 1024);
+
+  stream.write_all("ok".as_bytes()).unwrap();
+
+  let file_size = utilities::read_bytes_as_string(&stream, 1024).parse::<usize>().unwrap();
+  stream.write_all("ok".as_bytes()).unwrap();
+
+  let file_name = utilities::read_bytes_as_string(&stream, 1024);
+
+  let mut file = match std::fs::File::create(format!("{}/{}", target_folder, file_name)) {
+      Ok(file) => file,
+      Err(_) => {
+          stream.write_all("file-creation-failed".as_bytes()).unwrap();
+          return;
+      }
+  };
+
+  let mut buffer = vec![0; file_size];
+
+  stream.read_exact(&mut buffer).unwrap();
+  file.write_all(&buffer).unwrap();
+
+  stream.write_all("file-uploaded".as_bytes()).unwrap();
+}
+
+pub fn download(stream: &TcpStream) {
+  utilities::send_bytes(&stream, "download-file".as_bytes());
+  let file_path = utilities::read_bytes_as_string(&stream, 1024);
+
+  let file = match fs::read(file_path) {
+    Ok(file) => file,
+    Err(_) => {
+      utilities::send_bytes(&stream, "file-not-exist".as_bytes());
+      return;
+    }
+  };
+
+  utilities::send_bytes(&stream, "ok".as_bytes());
+  utilities::wait_for_packet(&stream);
+  
+  utilities::send_bytes(&stream, file.len().to_string().as_bytes());
+
+  utilities::wait_for_packet(&stream);
+  utilities::send_bytes(&stream, &file);
 }

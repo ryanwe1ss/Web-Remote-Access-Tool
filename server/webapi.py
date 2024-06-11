@@ -179,7 +179,20 @@ def UploadFile():
     file = request.files['file']
     path = request.form['path']
 
-    if (api.UploadFile(connection, path, file.filename, file.read())):
+    callBack = api.UploadFile(connection, path, file.filename, file.read())
+    if (callBack):
         return jsonify({'uploaded': True, 'message': 'File Uploaded'})
     else:
-        return jsonify({'uploaded': False, 'message': 'Unable to Upload File'})
+        return jsonify({'uploaded': False, 'message': 'Unable to Upload File' if callBack is None else 'Permission Denied'})
+    
+@api.post('/api/download-file')
+def DownloadFile():
+    global connection
+
+    path = request.json['path']
+    file = api.DownloadFile(connection, path)
+
+    if (file is not None):
+        return jsonify({'downloaded': True, 'message': 'File Downloaded', 'file': str(file, 'utf-8')})
+    else:
+        return jsonify({'downloaded': False, 'message': 'Unable to Download File'})

@@ -11,8 +11,10 @@ function UploadFile(args)
   const fileSubmit = useRef(null);
   const fileInput = useRef(null);
   const dropZone = useRef(null);
+  const close = useRef(null);
 
   const [fileName, setFileName] = useState('Drop File Here');
+  const [uploaded, setUploaded] = useState(false);
   const [fileData, setFileData] = useState({});
 
   useEffect(() => {
@@ -21,6 +23,13 @@ function UploadFile(args)
     }
 
   }, [args.show]);
+
+  useEffect(() => {
+    if (uploaded) {
+      args.reload();
+    }
+
+  }, [uploaded]);
 
   const handleDragOver = (event) => {
     event.preventDefault();
@@ -47,15 +56,40 @@ function UploadFile(args)
     setFileData(file);
   };
 
-  async function UploadFile() {
+  async function UploadFile(event) {
+    event.target.value = 'Uploading...';
+    event.target.classList.add('disabled');
+    close.current.style.pointerEvents = 'none';
+
+    const path = args.drive + args.path.join('/');
     const formData = new FormData();
+
     formData.append('file', fileData);
-    formData.append('path', args.path);
+    formData.append('path', path);
    
     const response = await HttpPost('/api/upload-file', formData, false, false);
     const data = await response.json();
 
-    console.log(data);
+    if (data.message == 'Permission Denied') {
+      event.target.style.backgroundColor = 'red';
+      event.target.value = 'Permission Denied, folder is not writable';
+    }
+    else {
+      setUploaded(true);
+      event.target.style.backgroundColor = 'green';
+      event.target.value = 'File has been uploaded successfully';
+    }
+
+    setTimeout(() => {
+      event.target.value = 'Upload File to Client';
+      event.target.style.backgroundColor = '';
+
+      close.current.style.pointerEvents = 'auto';
+      fileInput.current.value = null;
+      setFileName('Drop File Here');
+      setUploaded(false);
+
+    }, 3000);
   }
 
   function CloseModal() {
@@ -69,7 +103,7 @@ function UploadFile(args)
           <div className='modal-content'>
             <header>
               <h4>Upload File</h4>
-              <span className='close' onClick={CloseModal}>&times;</span>
+              <span className='close' onClick={CloseModal} ref={close}>&times;</span>
             </header>
             <hr/>
   

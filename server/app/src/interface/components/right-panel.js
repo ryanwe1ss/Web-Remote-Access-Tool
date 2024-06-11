@@ -7,18 +7,21 @@ import {
 import FileExplorer from '../components/file-explorer';
 
 // Modals
-import UploadFile from '../../modals/FileManipulatePrompts/upload-file';
+import UploadFile from '../../modals/Upload/upload-file';
 
 function RightPanel(args)
 {
   const [showUploadFile, setShowUploadFile] = useState(null);
   const [drivesRetrieved, setDrivesRetrieved] = useState(false);
-
+  
   const [path, setPath] = useState([]);
   const [drive, setDrive] = useState('/');
 
   const [drives, setDrives] = useState([]);
   const [files, setFiles] = useState([]);
+
+  const [fileCount, setFileCount] = useState(0);
+  const [folderCount, setFolderCount] = useState(0);
 
   const filePath = useRef(null);
   const deleteFile = useRef(null);
@@ -37,6 +40,7 @@ function RightPanel(args)
     HttpPost('/api/drives')
       .then(response => response.json())
       .then(data => {
+        if (!data.drives) return FetchDrives();
         const drives = data.drives.split('|').filter(Boolean);
         
         setDrive(`${drives[0]}:/`);
@@ -60,12 +64,11 @@ function RightPanel(args)
         FetchDrives();
       }
 
-      const files = [];
+      const newFiles = [];
       data.files.split('\n').forEach(file => {
         if (file) {
           const entry = file.split('|');
-
-          files.push({
+          newFiles.push({
             'name': entry[0],
             'type': entry[1],
             'size': entry[2],
@@ -73,7 +76,14 @@ function RightPanel(args)
         }
       });
 
-      setFiles(files);
+      const newFilesArray = newFiles.map(f => f.name).toString();
+      const oldFilesArray = files.map(f => f.name).toString();
+
+      if (newFilesArray != oldFilesArray) {
+        setFolderCount(newFiles.filter(file => file.type == 'folder').length);
+        setFileCount(newFiles.filter(file => file.type == 'file').length);
+        setFiles(newFiles);
+      }
     });
   }
 
@@ -91,7 +101,13 @@ function RightPanel(args)
   }
 
   function BrowseFolder() {
-    FetchFiles(filePath.current.value);
+    if (filePath.current.value.length > 0) {
+      setPath(filePath.current.value.split('/'));
+
+    } else if (filePath.current.value.length == 0) {
+      return;
+
+    } FetchFiles(filePath.current.value);
   }
 
   function BackFolder() {
@@ -110,7 +126,7 @@ function RightPanel(args)
     setPath([]);
   }
 
-  function UploadFileOnClient() {
+  function ShowUploadFileModal() {
     setShowUploadFile(true);
   }
 
@@ -129,7 +145,7 @@ function RightPanel(args)
 
         <hr/>
         <div className='functions'>
-          <button className='add-file' onClick={UploadFileOnClient}>
+          <button className='add-file' onClick={ShowUploadFileModal}>
             <i className='bi bi-file-earmark-plus'></i>&nbsp;
           </button>
 
@@ -150,13 +166,19 @@ function RightPanel(args)
               return <option key={index} value={drive}>{`${drive}:/`}</option>
             })}
           </select>
+
+          <div className='folder-properties'>
+            {fileCount} Files
+            <br/>
+            {folderCount} Folders
+          </div>
         </div>
         <hr/>
 
-        <FileExplorer files={files} ChangeFolder={ChangeFolder} />
+        <FileExplorer path={path} drive={drive} files={files} ChangeFolder={ChangeFolder} />
       </div>
 
-      <UploadFile show={showUploadFile} close={setShowUploadFile} />
+      <UploadFile show={showUploadFile} path={path} drive={drive} reload={FetchFiles} close={setShowUploadFile} />
     </div>
   );
 }
