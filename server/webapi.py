@@ -196,3 +196,13 @@ def DownloadFile():
         return jsonify({'downloaded': True, 'message': 'File Downloaded', 'file': str(file, 'utf-8')})
     else:
         return jsonify({'downloaded': False, 'message': 'Unable to Download File'})
+
+@api.post('/api/delete-file')
+def DeleteFile():
+    global connection
+
+    path = request.json['path']
+    if (api.DeleteFile(connection, path)):
+        return jsonify({'deleted': True, 'message': 'File Deleted'})
+    else:
+        return jsonify({'deleted': False, 'message': 'Unable to Delete File'})

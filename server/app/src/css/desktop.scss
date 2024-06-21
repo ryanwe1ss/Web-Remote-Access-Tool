@@ -305,7 +305,7 @@ body {
 
           .functions {
             
-            .add-file, .add-folder {
+            .add-file, .add-folder, .refresh {
               background-color: #4CAF50;
               font-size: 16px;
               max-width: 45px;
@@ -317,15 +317,11 @@ body {
               }
             }
 
-            .delete-file, .delete-folder {
-              background-color: #f44336;
-              font-size: 16px;
-              max-width: 45px;
-              min-width: 45px;
-              color: black;
+            .refresh {
+              background-color: #2196F3;
 
               &:hover {
-                background-color: #da3c2f;
+                background-color: #2D84DB;
               }
             }
 
@@ -352,7 +348,7 @@ body {
             }
           }
 
-          .search-btn, .back-btn, .add-file, .add-folder, .delete-file, .delete-folder {
+          .search-btn, .back-btn, .add-file, .add-folder, .refresh {
             flex: 1;
 
             background-color: #1b3e63;

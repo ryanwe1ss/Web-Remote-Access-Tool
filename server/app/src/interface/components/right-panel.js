@@ -24,13 +24,9 @@ function RightPanel(args)
   const [folderCount, setFolderCount] = useState(0);
 
   const filePath = useRef(null);
-  const deleteFile = useRef(null);
-  const deleteFolder = useRef(null);
 
   useEffect(() => {
     if (args.client.connected) {
-      deleteFile.current.classList.add('disabled');
-      deleteFolder.current.classList.add('disabled');
       FetchFiles();
     }
 
@@ -153,12 +149,8 @@ function RightPanel(args)
             <i className='bi bi-folder-plus'></i>&nbsp;
           </button>
 
-          <button className='delete-file' ref={deleteFile}>
-            <i className='bi bi-file-earmark-x'></i>&nbsp;
-          </button>
-
-          <button className='delete-folder' ref={deleteFolder}>
-            <i className='bi bi-folder-x'></i>&nbsp;
+          <button className='refresh' onClick={() => FetchFiles(path.join('/'), drive)}>
+            <i className='bi bi-arrow-clockwise'></i>&nbsp;
           </button>
 
           <select className='drive-select' onChange={SwitchDrive}>
@@ -175,7 +167,7 @@ function RightPanel(args)
         </div>
         <hr/>
 
-        <FileExplorer path={path} drive={drive} files={files} ChangeFolder={ChangeFolder} />
+        <FileExplorer path={path} drive={drive} reload={FetchFiles} files={files} ChangeFolder={ChangeFolder} />
       </div>
 
       <UploadFile show={showUploadFile} path={path} drive={drive} reload={FetchFiles} close={setShowUploadFile} />

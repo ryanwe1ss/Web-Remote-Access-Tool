@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // Modals
-import DownloadFile from '../../modals/Download/download-file';
+import FileOperations from '../../modals/FileOperations/file-operations';
 
 function FileExplorer(args)
 {
@@ -44,7 +44,7 @@ function FileExplorer(args)
         </table>
       </div>
 
-      <DownloadFile file={file} path={args.path} drive={args.drive} show={showDownloadFile} close={setShowDownloadFile} />
+      <FileOperations file={file} path={args.path} reload={args.reload} drive={args.drive} show={showDownloadFile} close={setShowDownloadFile} />
     </div>
   );
 }

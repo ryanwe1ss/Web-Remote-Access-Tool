@@ -295,6 +295,20 @@ def DownloadFile(connection, path):
       return base64.b64encode(data)
    
    return None
+
+def DeleteFile(connection, path):
+   response = send_and_receive(connection, 'delete-file')
+
+   if ('delete-file' in response):
+      send(connection, path)
+      status = receive(connection)
+
+      if ('file-not-exist' in status):
+         return False
+
+      return True if ('file-deleted' in status) else False
+   
+   return None
    
 def SystemAction(connection, action):
    response = send_and_receive(connection, action)
@@ -384,6 +398,7 @@ webapi.api.GetDrives = GetDrives
 webapi.api.GetFiles = GetFiles
 webapi.api.UploadFile = UploadFile
 webapi.api.DownloadFile = DownloadFile
+webapi.api.DeleteFile = DeleteFile
 
 server_thread = threading.Thread(target=start_websocket_server)
 server_thread.daemon = True

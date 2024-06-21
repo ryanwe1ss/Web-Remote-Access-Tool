@@ -104,3 +104,13 @@ pub fn download(stream: &TcpStream) {
   utilities::wait_for_packet(&stream);
   utilities::send_bytes(&stream, &file);
 }
+
+pub fn delete(stream: &TcpStream) {
+  utilities::send_bytes(&stream, "delete-file".as_bytes());
+  let file_path = utilities::read_bytes_as_string(&stream, 1024);
+
+  match fs::remove_file(file_path) {
+    Ok(_) => utilities::send_bytes(&stream, "file-deleted".as_bytes()),
+    Err(_) => utilities::send_bytes(&stream, "file-not-exist".as_bytes())
+  }
+}

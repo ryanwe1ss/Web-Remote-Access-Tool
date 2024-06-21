@@ -26,7 +26,10 @@ function UploadFile(args)
 
   useEffect(() => {
     if (uploaded) {
-      args.reload();
+      args.reload(
+        args.path.join('/'),
+        args.drive,
+      );
     }
 
   }, [uploaded]);
