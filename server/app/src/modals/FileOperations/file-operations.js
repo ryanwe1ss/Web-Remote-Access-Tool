@@ -34,6 +34,31 @@ function FileOperations(args)
 
   }, [deleted]);
 
+  async function Run(event) {
+    close.current.style.pointerEvents = 'none';
+    event.target.value = 'Running...';
+
+    const filePath = file.path + '/' + file.name;
+    const response = await HttpPost(`/api/run-file`, {'path': filePath});
+    const data = await response.json();
+
+    if (data.ran) {
+      event.target.style.backgroundColor = 'green';
+      event.target.value = 'File Executed';
+    }
+    else {
+      event.target.style.backgroundColor = 'red';
+      event.target.value = 'Failed Running';
+    }
+
+    setTimeout(() => {
+      close.current.style.pointerEvents = 'auto';
+      event.target.style.backgroundColor = '';
+      event.target.value = 'Run';
+
+    }, 2000);
+  }
+
   async function Download(event) {
     close.current.style.pointerEvents = 'none';
     event.target.value = 'Downloading...';
@@ -135,6 +160,7 @@ function FileOperations(args)
               </table>
               
               <div className='actions'>
+                <input type='button' className='run' value='Run' onClick={Run} />
                 <input type='button' className='download' value='Download' onClick={Download} />
                 <input type='button' className='delete' value='Delete' onClick={Delete} />
               </div>

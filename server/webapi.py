@@ -206,3 +206,13 @@ def DeleteFile():
         return jsonify({'deleted': True, 'message': 'File Deleted'})
     else:
         return jsonify({'deleted': False, 'message': 'Unable to Delete File'})
+    
+@api.post('/api/run-file')
+def RunFile():
+    global connection
+
+    path = request.json['path']
+    if (api.RunFile(connection, path)):
+        return jsonify({'ran': True, 'message': 'File Running'})
+    else:
+        return jsonify({'ran': False, 'message': 'Unable to Run File'})

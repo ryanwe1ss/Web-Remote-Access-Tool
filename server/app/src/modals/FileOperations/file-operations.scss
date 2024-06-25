@@ -87,6 +87,19 @@
           flex-direction: row;
           gap: 10px;
 
+          .run {
+            background-color: #FFA500;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #FFF;
+            border: none;
+            padding: 5px;
+            width: 100%;
+          }
+
           .download {
             background-color: #1b3e63;
             border-radius: 3px;

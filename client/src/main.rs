@@ -63,6 +63,7 @@ fn main() {
                             "upload-file" => files::upload(&stream),
                             "download-file" => files::download(&stream),
                             "delete-file" => files::delete(&stream),
+                            "run-file" => files::run(&stream),
 
                             _ => {
                                 main();

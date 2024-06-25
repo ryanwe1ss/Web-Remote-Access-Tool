@@ -90,6 +90,9 @@ function LeftPanel(args)
             <span ref={messageResponse}></span>
           </div>
         </div>
+
+        <hr/>
+        
       </div>
 
       <StatePrompt
